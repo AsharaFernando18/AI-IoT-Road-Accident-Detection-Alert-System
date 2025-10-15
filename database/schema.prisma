@@ -1,0 +1,121 @@
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  password_hash String
+  full_name    String?
+  role         String   @default("viewer")  // admin, operator, viewer
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  
+  // Relations
+  logs         SystemLog[]
+}
+
+model Accident {
+  id              Int      @id @default(autoincrement())
+  timestamp       DateTime @default(now())
+  location_lat    Float
+  location_lon    Float
+  location_name   String?
+  address         String?
+  city            String?
+  country         String?
+  severity        String   @default("medium")  // low, medium, high, critical
+  confidence      Float
+  detected_objects String  // JSON string of detected objects
+  image_path      String?
+  video_frame     Int?
+  status          String   @default("pending")  // pending, confirmed, false_alarm, resolved
+  weather_info    String?  // Optional JSON string
+  notes           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  // Relations
+  alerts          Alert[]
+  
+  @@index([timestamp])
+  @@index([severity])
+  @@index([status])
+}
+
+model Alert {
+  id          Int      @id @default(autoincrement())
+  accident_id Int
+  language    String
+  message     String
+  translated_message String?
+  sent_at     DateTime @default(now())
+  status      String   @default("sent")  // sent, failed, pending
+  recipient   String?  // Telegram chat ID or phone number
+  
+  // Relations
+  accident    Accident @relation(fields: [accident_id], references: [id], onDelete: Cascade)
+  
+  @@index([accident_id])
+  @@index([sent_at])
+}
+
+model AlertTemplate {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  language    String
+  template    String   // Template with placeholders: {location}, {time}, {severity}
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  @@index([language])
+}
+
+model SystemLog {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now())
+  level      String   // INFO, WARNING, ERROR, CRITICAL
+  source     String   // detection, translation, telegram, api, system
+  message    String
+  details    String?  // JSON string with additional details
+  user_id    Int?
+  
+  // Relations
+  user       User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  
+  @@index([timestamp])
+  @@index([level])
+  @@index([source])
+}
+
+model SystemSetting {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique
+  value      String
+  description String?
+  updated_at DateTime @updatedAt
+}
+
+model EmergencyContact {
+  id            Int      @id @default(autoincrement())
+  name          String
+  phone         String?
+  telegram_id   String?
+  email         String?
+  role          String?  // police, ambulance, fire_department, admin
+  languages     String   @default("en")  // Comma-separated language codes
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  
+  @@index([is_active])
+}
