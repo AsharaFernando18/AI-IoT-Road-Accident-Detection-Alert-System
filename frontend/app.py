@@ -5,7 +5,7 @@ Main dashboard for RoadSafeNet
 
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.security import check_password_hash
+import bcrypt
 import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc
@@ -45,7 +45,12 @@ class User(UserMixin):
         self.username = user_data.username
         self.email = user_data.email
         self.role = user_data.role
-        self.is_active = user_data.is_active
+        self._is_active = user_data.is_active
+    
+    @property
+    def is_active(self):
+        """Return whether user is active"""
+        return self._is_active
 
 
 @login_manager.user_loader
@@ -69,7 +74,7 @@ def load_user(user_id):
 def index():
     """Redirect to login or dashboard"""
     if current_user.is_authenticated:
-        return redirect('/dashboard')
+        return redirect('/dashboard/')
     return redirect(url_for('login'))
 
 
@@ -77,7 +82,7 @@ def index():
 def login():
     """Login page"""
     if current_user.is_authenticated:
-        return redirect('/dashboard')
+        return redirect('/dashboard/')
     
     if request.method == 'POST':
         username = request.form.get('username')
@@ -93,13 +98,21 @@ def login():
         asyncio.set_event_loop(loop)
         user_data = loop.run_until_complete(authenticate())
         
-        if user_data and check_password_hash(user_data.password_hash, password):
-            if user_data.is_active:
-                user = User(user_data)
-                login_user(user)
-                return redirect('/dashboard')
+        if user_data:
+            # Check password using bcrypt
+            password_bytes = password.encode('utf-8')
+            hash_bytes = user_data.password_hash.encode('utf-8')
+            password_match = bcrypt.checkpw(password_bytes, hash_bytes)
+            
+            if password_match:
+                if user_data.is_active:
+                    user = User(user_data)
+                    login_user(user)
+                    return redirect('/dashboard/')
+                else:
+                    flash('Account is inactive', 'danger')
             else:
-                flash('Account is inactive', 'danger')
+                flash('Invalid username or password', 'danger')
         else:
             flash('Invalid username or password', 'danger')
     
@@ -131,7 +144,10 @@ app.layout = dbc.Container([
     # Navbar
     dbc.Navbar(
         dbc.Container([
-            dbc.NavbarBrand("🚨 RoadSafeNet", className="ms-2"),
+            html.Div([
+                html.Img(src='/static/images/logo.png', height='40px', style={'marginRight': '10px', 'borderRadius': '8px'}),
+                dbc.NavbarBrand("🚨 RoadSafeNet", className="ms-2"),
+            ], style={'display': 'flex', 'alignItems': 'center'}),
             dbc.Nav([
                 dbc.NavItem(dbc.NavLink("Dashboard", href="/dashboard/")),
                 dbc.NavItem(dbc.NavLink("Incidents", href="/dashboard/incidents")),

@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from prisma import Prisma
-from passlib.hash import bcrypt
+import bcrypt as bcrypt_lib
 from datetime import datetime
 import json
 
@@ -27,11 +27,15 @@ async def init_database():
         )
         
         if not existing_admin:
+            # Hash password using bcrypt
+            password_bytes = "admin123".encode('utf-8')
+            hashed = bcrypt_lib.hashpw(password_bytes, bcrypt_lib.gensalt())
+            
             admin_user = await db.user.create(
                 data={
                     "username": "admin",
                     "email": "admin@roadsafenet.com",
-                    "password_hash": bcrypt.hash("admin123"),
+                    "password_hash": hashed.decode('utf-8'),
                     "full_name": "System Administrator",
                     "role": "admin",
                     "is_active": True
