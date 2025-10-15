@@ -1,0 +1,353 @@
+/* Professional Typography for RoadSafeNet Dashboard */
+
+/* Import Professional Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Global Font Settings */
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings - Use Poppins for Impact */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #2c3e50;
+}
+
+h1, .h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+h2, .h2 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+h3, .h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+h4, .h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+h5, .h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+h6, .h6 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Body Text */
+body, p, span, div {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+/* Lead Text */
+.lead {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* Strong & Bold Text */
+strong, b, .font-weight-bold {
+    font-weight: 600;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.3px;
+}
+
+.nav-link {
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.2px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    font-weight: 600;
+}
+
+/* Cards */
+.card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #495057;
+    letter-spacing: 0.2px;
+}
+
+.card-text {
+    font-weight: 400;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btn {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+}
+
+.btn-lg {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.btn-sm {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Form Elements */
+.form-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.form-select {
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+/* Tables */
+.table {
+    font-family: 'Inter', sans-serif;
+}
+
+.table thead th {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: #495057;
+}
+
+.table tbody td {
+    font-weight: 400;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+/* Badges */
+.badge {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+}
+
+/* Alerts */
+.alert {
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.alert-heading {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+/* Text Utilities */
+.text-muted {
+    font-weight: 500;
+    color: #6c757d !important;
+}
+
+.text-small, small {
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+/* Numbers and Statistics */
+.stat-number {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.stat-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+}
+
+/* Dashboard Specific */
+.dashboard-card {
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Links */
+a {
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    font-weight: 600;
+}
+
+/* Dropdown */
+.dropdown-item {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.dropdown-item:hover {
+    font-weight: 600;
+}
+
+/* Modal */
+.modal-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.3px;
+}
+
+.modal-body {
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Breadcrumb */
+.breadcrumb-item {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item.active {
+    font-weight: 600;
+}
+
+/* Pagination */
+.page-link {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.page-link:hover {
+    font-weight: 600;
+}
+
+/* Tooltips */
+.tooltip {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* Code & Pre */
+code, pre {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-weight: 400;
+}
+
+/* Plotly Charts - Enhanced Typography */
+.js-plotly-plot .plotly text {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.js-plotly-plot .plotly .gtitle {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.js-plotly-plot .plotly .xtitle,
+.js-plotly-plot .plotly .ytitle {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+/* Loading States */
+.loading-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: #667eea;
+}
+
+/* Custom Dashboard Styling */
+.page-header {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+}
+
+.section-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+    border-left: 4px solid #667eea;
+    padding-left: 15px;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    h1, .h1 { font-size: 2rem; }
+    h2, .h2 { font-size: 1.75rem; }
+    h3, .h3 { font-size: 1.5rem; }
+    h4, .h4 { font-size: 1.25rem; }
+    
+    .page-header { font-size: 2rem; }
+    .section-title { font-size: 1.5rem; }
+    .stat-number { font-size: 2rem; }
+}
+
+@media (max-width: 576px) {
+    h1, .h1 { font-size: 1.75rem; }
+    h2, .h2 { font-size: 1.5rem; }
+    
+    .page-header { font-size: 1.75rem; }
+    .section-title { font-size: 1.25rem; }
+    .stat-number { font-size: 1.75rem; }
+}

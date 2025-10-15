@@ -28,11 +28,17 @@ server = Flask(__name__,
               template_folder=str(Config.TEMPLATES_DIR),
               static_folder=str(Config.STATIC_DIR))
 server.config['SECRET_KEY'] = Config.SECRET_KEY
+server.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Session expires after 1 hour
+server.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+server.config['SESSION_COOKIE_SECURE'] = False  # Set to True if using HTTPS
+server.config['SESSION_COOKIE_HTTPONLY'] = True
+server.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=1)
 
 # Initialize Login Manager
 login_manager = LoginManager()
 login_manager.init_app(server)
 login_manager.login_view = 'login'
+login_manager.session_protection = 'strong'  # Strong session protection
 
 # Database
 db = Prisma()
@@ -81,8 +87,15 @@ def index():
 @server.route('/login', methods=['GET', 'POST'])
 def login():
     """Login page"""
-    if current_user.is_authenticated:
+    # Allow viewing login page with ?force=1 parameter even if authenticated
+    force_login = request.args.get('force') == '1'
+    
+    if current_user.is_authenticated and not force_login:
         return redirect('/dashboard/')
+    
+    # If force login, logout first
+    if force_login and current_user.is_authenticated:
+        logout_user()
     
     if request.method == 'POST':
         username = request.form.get('username')
@@ -107,7 +120,9 @@ def login():
             if password_match:
                 if user_data.is_active:
                     user = User(user_data)
-                    login_user(user)
+                    # Don't use remember_me - session will expire when browser closes or after timeout
+                    login_user(user, remember=False)
+                    session.permanent = False  # Session ends when browser closes
                     return redirect('/dashboard/')
                 else:
                     flash('Account is inactive', 'danger')
@@ -124,15 +139,22 @@ def login():
 def logout():
     """Logout"""
     logout_user()
+    session.clear()  # Clear all session data
+    flash('You have been logged out successfully', 'success')
     return redirect(url_for('login'))
 
 
-# Initialize Dash app
+# Initialize Dash app with professional fonts
 app = dash.Dash(
     __name__,
     server=server,
     url_base_pathname='/dashboard/',
-    external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME],
+    external_stylesheets=[
+        dbc.themes.BOOTSTRAP, 
+        dbc.icons.FONT_AWESOME,
+        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap',
+        '/static/custom.css'  # Custom professional typography
+    ],
     suppress_callback_exceptions=True
 )
 
@@ -167,7 +189,10 @@ app.layout = dbc.Container([
     # Main content
     html.Div(id='page-content'),
     
-], fluid=True, style={'backgroundColor': '#f8f9fa'})
+], fluid=True, style={
+    'backgroundColor': '#f8f9fa',
+    'fontFamily': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+})
 
 
 # Home Dashboard Layout
@@ -176,7 +201,8 @@ def create_home_layout():
     return dbc.Container([
         dbc.Row([
             dbc.Col([
-                html.H2("🏠 Dashboard Overview", className="mb-4"),
+                html.H2("🏠 Dashboard Overview", className="mb-4", 
+                       style={'fontFamily': "'Poppins', sans-serif", 'fontWeight': '700', 'color': '#2c3e50', 'letterSpacing': '-0.5px'}),
             ], width=12)
         ]),
         
@@ -185,9 +211,12 @@ def create_home_layout():
             dbc.Col([
                 dbc.Card([
                     dbc.CardBody([
-                        html.H4("Total Accidents", className="card-title"),
-                        html.H2(id="total-accidents", className="text-primary"),
-                        html.P("All time", className="text-muted")
+                        html.H4("Total Accidents", className="card-title", 
+                               style={'fontFamily': "'Poppins', sans-serif", 'fontWeight': '600', 'fontSize': '1rem'}),
+                        html.H2(id="total-accidents", className="text-primary",
+                               style={'fontFamily': "'Poppins', sans-serif", 'fontWeight': '700', 'fontSize': '2.5rem'}),
+                        html.P("All time", className="text-muted",
+                              style={'fontWeight': '500', 'fontSize': '0.9rem'})
                     ])
                 ], className="shadow-sm")
             ], md=3),
