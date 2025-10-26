@@ -178,7 +178,7 @@ app.layout = dbc.Container([
                 dbc.NavItem(dbc.NavLink("Users", href="/dashboard/users")),
                 dbc.NavItem(dbc.NavLink("Logs", href="/dashboard/logs")),
                 dbc.NavItem(dbc.NavLink("Settings", href="/dashboard/settings")),
-                dbc.NavItem(dbc.NavLink("Logout", href="/logout")),
+                dbc.NavItem(html.A("Logout", href="/logout", className="nav-link", style={'color': 'rgba(255,255,255,.55)', 'cursor': 'pointer'})),
             ], navbar=True)
         ], fluid=True),
         color="dark",
