@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoadSafeNet - Notifications</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --navy-blue: #1e3a8a;
+            --red-alert: #dc2626;
+            --orange-warning: #f59e0b;
+            --green-success: #16a34a;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+        }
+        
+        .navbar-brand {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+        }
+        
+        .container-main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            color: var(--navy-blue);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .notification-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--navy-blue);
+        }
+        
+        .notification-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-card.critical {
+            border-left-color: var(--red-alert);
+            background: linear-gradient(135deg, #fef2f2 0%, white 100%);
+        }
+        
+        .notification-card.warning {
+            border-left-color: var(--orange-warning);
+            background: linear-gradient(135deg, #fffbeb 0%, white 100%);
+        }
+        
+        .notification-card.success {
+            border-left-color: var(--green-success);
+            background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
+        }
+        
+        .notification-card.info {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, white 100%);
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .notification-icon.critical {
+            background: var(--red-alert);
+            color: white;
+        }
+        
+        .notification-icon.warning {
+            background: var(--orange-warning);
+            color: white;
+        }
+        
+        .notification-icon.success {
+            background: var(--green-success);
+            color: white;
+        }
+        
+        .notification-icon.info {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .notification-body {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: var(--navy-blue);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .notification-message {
+            color: var(--gray-700);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .notification-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .notification-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        
+        .badge-type {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: white;
+            border: 2px solid var(--gray-100);
+            color: var(--gray-700);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--navy-blue);
+            color: white;
+            border-color: var(--navy-blue);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #9ca3af;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shield-alt me-2"></i>RoadSafeNet
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/analytics">
+                            <i class="fas fa-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard/notifications">
+                            <i class="fas fa-bell me-1"></i>Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%); border: none; padding: 1.75rem 2rem; color: white;">
+                    <h5 class="modal-title" id="logoutModalLabel" style="font-family: 'Sora', sans-serif; font-weight: 600; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                        <i class="fas fa-sign-out-alt" style="font-size: 1.5rem;"></i>
+                        Confirm Logout
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 3rem 2rem 2rem; text-align: center; background: white;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: var(--orange-warning);"></i>
+                    </div>
+                    <h6 style="font-family: 'Sora', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.75rem;">
+                        Are you sure you want to log out?
+                    </h6>
+                    <p style="font-size: 0.95rem; color: var(--gray-600); margin-bottom: 0; line-height: 1.6;">
+                        You will need to log in again to access the dashboard and monitor incidents.
+                    </p>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0 2rem 2rem; gap: 1rem; background: white; justify-content: center;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: var(--gray-200); color: var(--gray-700); border: none; transition: all 0.3s ease; min-width: 120px;">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <a href="/logout" class="btn btn-danger" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: linear-gradient(135deg, var(--red-alert) 0%, #b91c1c 100%); border: none; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); transition: all 0.3s ease; min-width: 120px;">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-main">
+        <h1 class="page-title">
+            <i class="fas fa-bell me-3"></i>Notifications Center
+        </h1>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-list me-2"></i>All
+            </button>
+            <button class="filter-btn" data-filter="critical">
+                <i class="fas fa-exclamation-circle me-2"></i>Critical
+            </button>
+            <button class="filter-btn" data-filter="warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>Warning
+            </button>
+            <button class="filter-btn" data-filter="info">
+                <i class="fas fa-info-circle me-2"></i>Info
+            </button>
+            <button class="filter-btn" data-filter="success">
+                <i class="fas fa-check-circle me-2"></i>Success
+            </button>
+        </div>
+
+        <!-- Notifications List -->
+        <div id="notifications-list"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let allNotifications = [];
+        let currentFilter = 'all';
+
+        // Sample notification data (will be replaced with API data)
+        const sampleNotifications = [
+            {
+                type: 'critical',
+                title: 'Critical Incident Detected',
+                message: 'Collision detected at 12.345°N, 67.890°E. Emergency services dispatched.',
+                time: '2 minutes ago',
+                date: '2025-10-26'
+            },
+            {
+                type: 'warning',
+                title: 'Multiple Incidents in Area',
+                message: 'High frequency of incidents detected in Kuala Lumpur central district.',
+                time: '15 minutes ago',
+                date: '2025-10-26'
+            },
+            {
+                type: 'info',
+                title: 'System Update Scheduled',
+                message: 'Maintenance window scheduled for 02:00 AM - 04:00 AM.',
+                time: '1 hour ago',
+                date: '2025-10-26'
+            },
+            {
+                type: 'success',
+                title: 'Incident Resolved',
+                message: 'Incident #1002 has been successfully resolved. All units cleared.',
+                time: '2 hours ago',
+                date: '2025-10-26'
+            },
+            {
+                type: 'critical',
+                title: 'Emergency Response Required',
+                message: 'Severe accident on Jalan Sultan Ismail. Multiple casualties reported.',
+                time: '3 hours ago',
+                date: '2025-10-26'
+            }
+        ];
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/api/notifications/all');
+                const data = await response.json();
+                allNotifications = data.notifications || sampleNotifications;
+                displayNotifications();
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                allNotifications = sampleNotifications;
+                displayNotifications();
+            }
+        }
+
+        // Display notifications based on filter
+        function displayNotifications() {
+            const container = document.getElementById('notifications-list');
+            const filtered = currentFilter === 'all' 
+                ? allNotifications 
+                : allNotifications.filter(n => n.type === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Notifications</h3>
+                        <p>There are no ${currentFilter === 'all' ? '' : currentFilter} notifications at this time.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(notification => {
+                const iconMap = {
+                    critical: 'fa-exclamation-circle',
+                    warning: 'fa-exclamation-triangle',
+                    success: 'fa-check-circle',
+                    info: 'fa-info-circle'
+                };
+
+                return `
+                    <div class="notification-card ${notification.type}">
+                        <div class="notification-body">
+                            <div class="notification-icon ${notification.type}">
+                                <i class="fas ${iconMap[notification.type]}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-header">
+                                    <div class="notification-title">${notification.title}</div>
+                                    <span class="badge-type badge-${notification.type}">${notification.type}</span>
+                                </div>
+                                <div class="notification-message">${notification.message}</div>
+                                <div class="notification-meta">
+                                    <span><i class="far fa-clock"></i>${notification.time}</span>
+                                    <span><i class="far fa-calendar"></i>${notification.date}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-filter');
+                displayNotifications();
+            });
+        });
+
+        // Load notifications on page load
+        loadNotifications();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadNotifications, 30000);
+
+        // Logout Modal Function
+        function showLogoutModal() {
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
+        }
+    </script>
+</body>
+</html>

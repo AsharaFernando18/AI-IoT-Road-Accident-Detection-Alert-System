@@ -74,3 +74,10 @@ htmlcov/
 # Prisma
 node_modules
 .env
+
+# Large video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+frontend/static/CCTV.mp4

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoadSafeNet - Dashboard</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --navy-blue: #1e3a8a;
+            --red-alert: #dc2626;
+            --orange-warning: #f59e0b;
+            --green-success: #16a34a;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+        }
+        
+        /* Header */
+        .navbar {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+        }
+        
+        .navbar-brand {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: var(--orange-warning);
+            border-radius: 2px;
+        }
+        
+        /* Main Dashboard Container */
+        .dashboard-container {
+            padding: 2rem;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .top-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .middle-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            color: white;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            border-radius: 16px 16px 0 0 !important;
+            border: none;
+            font-size: 1.1rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Active Incidents */
+        .incidents-container {
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .incident-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-left: 4px solid var(--navy-blue);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .incident-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .incident-card.severity-high {
+            border-left-color: var(--red-alert);
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+        }
+        
+        .incident-card.severity-medium {
+            border-left-color: var(--orange-warning);
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+        
+        .incident-card.severity-critical {
+            border-left-color: #991b1b;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+            animation: pulse-critical 2s infinite;
+        }
+        
+        @keyframes pulse-critical {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        }
+        
+        .incident-card.status-resolved {
+            opacity: 0.7;
+            border-left-color: var(--green-success);
+        }
+        
+        .incident-card.status-en-route {
+            border-left-color: #3b82f6;
+        }
+        
+        .incident-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .incident-id {
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--navy-blue);
+        }
+        
+        .incident-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-critical {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .badge-resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-en-route {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .incident-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+        
+        .incident-detail i {
+            width: 20px;
+            margin-right: 0.5rem;
+            color: var(--navy-blue);
+        }
+        
+        /* Map Placeholder */
+        .map-container {
+            height: 500px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+        
+        .map-placeholder-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            color: var(--navy-blue);
+            opacity: 0.4;
+        }
+        
+        /* Live Video Feed */
+        .video-container {
+            height: 500px;
+            background: #000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        
+        .live-indicator {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--red-alert);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse-live 2s infinite;
+        }
+        
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* Notifications */
+        .notifications-container {
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            background: var(--gray-50);
+            border-left: 3px solid var(--navy-blue);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-item:hover {
+            background: white;
+            transform: translateX(3px);
+        }
+        
+        .notification-item.alert-critical {
+            border-left-color: var(--red-alert);
+            background: #fef2f2;
+        }
+        
+        .notification-item.alert-warning {
+            border-left-color: var(--orange-warning);
+            background: #fffbeb;
+        }
+        
+        .notification-item.alert-info {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .notification-text {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            margin-bottom: 0.25rem;
+        }
+        
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+        
+        /* Quick Actions */
+        .quick-actions-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .action-btn {
+            background: white;
+            border: 2px solid var(--gray-200);
+            color: var(--gray-700);
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            color: white;
+            border-color: var(--navy-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+        
+        .action-btn i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Scrollbar Styling */
+        .incidents-container::-webkit-scrollbar,
+        .notifications-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .incidents-container::-webkit-scrollbar-track,
+        .notifications-container::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 10px;
+        }
+        
+        .incidents-container::-webkit-scrollbar-thumb,
+        .notifications-container::-webkit-scrollbar-thumb {
+            background: var(--navy-blue);
+            border-radius: 10px;
+        }
+        
+        .incidents-container::-webkit-scrollbar-thumb:hover,
+        .notifications-container::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .top-row,
+            .middle-row,
+            .bottom-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-container,
+            .video-container {
+                height: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            
+            .map-container,
+            .video-container {
+                height: 300px;
+            }
+            
+            .quick-actions-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shield-alt me-2"></i>RoadSafeNet
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/analytics">
+                            <i class="fas fa-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/notifications">
+                            <i class="fas fa-bell me-1"></i>Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--navy-blue) 0%, #2563eb 100%); border: none; padding: 1.75rem 2rem; color: white;">
+                    <h5 class="modal-title" id="logoutModalLabel" style="font-family: 'Sora', sans-serif; font-weight: 600; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                        <i class="fas fa-sign-out-alt" style="font-size: 1.5rem;"></i>
+                        Confirm Logout
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 3rem 2rem 2rem; text-align: center; background: white;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: var(--orange-warning);"></i>
+                    </div>
+                    <h6 style="font-family: 'Sora', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.75rem;">
+                        Are you sure you want to log out?
+                    </h6>
+                    <p style="font-size: 0.95rem; color: var(--gray-600); margin-bottom: 0; line-height: 1.6;">
+                        You will need to log in again to access the dashboard and monitor incidents.
+                    </p>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 0 2rem 2rem; gap: 1rem; background: white; justify-content: center;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: var(--gray-200); color: var(--gray-700); border: none; transition: all 0.3s ease; min-width: 120px;">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <a href="/logout" class="btn btn-danger" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: linear-gradient(135deg, var(--red-alert) 0%, #b91c1c 100%); border: none; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); transition: all 0.3s ease; min-width: 120px;">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <div class="dashboard-grid">
+            <!-- Top Row: Video Feed and Map (Large) -->
+            <div class="top-row">
+                <!-- Live CCTV Feed (LEFT SIDE) -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-video me-2"></i>Live CCTV Video Feed
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="video-container">
+                            <div class="live-indicator">
+                                <div class="live-dot"></div>
+                                LIVE
+                            </div>
+                            <video id="cctv-feed" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                                <source src="{{ url_for('static', filename='CCTV.mp4') }}" type="video/mp4">
+                                <p style="color: white; padding: 20px; text-align: center;">Your browser does not support the video tag.</p>
+                            </video>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incident Map (RIGHT SIDE) -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-map-marked-alt me-2"></i>Live Incident Map
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="map-container">
+                            <div id="map"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Row: Active Incidents and Notifications -->
+            <div class="middle-row">
+                <!-- Active Incidents -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Active Incidents
+                        <span class="badge bg-danger ms-2" id="incident-count">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="incidents-container" id="incidents-container">
+                            <!-- Incident cards will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-bell me-2"></i>Recent Notifications
+                    </div>
+                    <div class="card-body">
+                        <div class="notifications-container" id="notifications-container">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); display: grid; gap: 1rem;">
+                        <button class="action-btn" onclick="updateIncident()">
+                            <i class="fas fa-edit"></i> Update Incident
+                        </button>
+                        <button class="action-btn" onclick="activateSiren()">
+                            <i class="fas fa-bullhorn"></i> Activate Siren
+                        </button>
+                        <button class="action-btn" onclick="pingDispatcher()">
+                            <i class="fas fa-phone-alt"></i> Ping Dispatcher
+                        </button>
+                        <button class="action-btn" onclick="requestBackup()">
+                            <i class="fas fa-users"></i> Request Backup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        RoadSafeNet © 2025
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize Map
+        let map = L.map('map').setView([3.139, 101.6869], 12); // Kuala Lumpur coordinates
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Create custom emoji icon function
+        function createEmojiIcon(emoji, bgColor = 'white') {
+            return L.divIcon({
+                html: `<div style="background: ${bgColor}; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 2px solid white;">${emoji}</div>`,
+                className: 'custom-emoji-icon',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                popupAnchor: [0, -18]
+            });
+        }
+        
+        // Sample incident markers (accidents)
+        const incidents = [
+            { lat: 3.1390, lng: 101.6869, id: '#1001', severity: 'high', type: 'accident' },
+            { lat: 3.0738, lng: 101.5183, id: '#1002', severity: 'medium', type: 'accident' },
+            { lat: 3.0669, lng: 101.5030, id: '#1003', severity: 'critical', type: 'accident' }
+        ];
+        
+        // Emergency services locations
+        const emergencyServices = [
+            { lat: 3.1466, lng: 101.6958, name: 'Kuala Lumpur General Hospital', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1535, lng: 101.7000, name: 'University Malaya Medical Centre', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1200, lng: 101.6500, name: 'Police Station - Sentul', type: 'police', emoji: '🚔' },
+            { lat: 3.1650, lng: 101.7100, name: 'Police Station - KLCC', type: 'police', emoji: '🚔' },
+            { lat: 3.1100, lng: 101.6400, name: 'Ambulance Station - Central', type: 'ambulance', emoji: '🚑' },
+            { lat: 3.1300, lng: 101.6700, name: 'Ambulance Station - North', type: 'ambulance', emoji: '🚑' }
+        ];
+        
+        // Add accident markers to map
+        incidents.forEach(incident => {
+            const color = incident.severity === 'critical' ? '#dc2626' : 
+                         incident.severity === 'high' ? '#f59e0b' : '#3b82f6';
+            
+            const accidentIcon = createEmojiIcon('⚠️', color);
+            
+            const marker = L.marker([incident.lat, incident.lng], {
+                icon: accidentIcon
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="font-family: 'Inter', sans-serif;">
+                    <b style="color: ${color};">🚨 Incident ${incident.id}</b><br>
+                    <strong>Severity:</strong> ${incident.severity.toUpperCase()}<br>
+                    <small>Tap for details</small>
+                </div>
+            `);
+        });
+        
+        // Add emergency service markers
+        emergencyServices.forEach(service => {
+            let bgColor = '#ffffff';
+            if (service.type === 'hospital') bgColor = '#fee2e2'; // light red
+            if (service.type === 'police') bgColor = '#dbeafe';   // light blue
+            if (service.type === 'ambulance') bgColor = '#fef3c7'; // light yellow
+            
+            const serviceIcon = createEmojiIcon(service.emoji, bgColor);
+            
+            const marker = L.marker([service.lat, service.lng], {
+                icon: serviceIcon
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="font-family: 'Inter', sans-serif;">
+                    <b>${service.emoji} ${service.name}</b><br>
+                    <span style="text-transform: capitalize; color: #6b7280;">${service.type}</span>
+                </div>
+            `);
+        });
+
+        // Load incidents from server
+        async function loadIncidents() {
+            try {
+                const response = await fetch('/api/incidents');
+                const data = await response.json();
+                
+                const container = document.getElementById('incidents-container');
+                const countBadge = document.getElementById('incident-count');
+                container.innerHTML = '';
+                
+                if (data.incidents && data.incidents.length > 0) {
+                    countBadge.textContent = data.incidents.length;
+                    data.incidents.forEach(incident => {
+                        const card = createIncidentCard(incident);
+                        container.innerHTML += card;
+                    });
+                } else {
+                    countBadge.textContent = '0';
+                    container.innerHTML = '<p class="text-center text-muted">No active incidents</p>';
+                }
+            } catch (error) {
+                console.error('Error loading incidents:', error);
+                document.getElementById('incidents-container').innerHTML = 
+                    '<p class="text-center text-danger">Error loading incidents</p>';
+            }
+        }
+
+        // Create incident card HTML
+        function createIncidentCard(incident) {
+            const severityClass = `severity-${incident.severity?.toLowerCase() || 'medium'}`;
+            const statusClass = `status-${incident.status?.toLowerCase().replace(' ', '-') || 'pending'}`;
+            const badgeClass = `badge-${incident.severity?.toLowerCase() || 'medium'}`;
+            
+            return `
+                <div class="incident-card ${severityClass} ${statusClass}">
+                    <div class="incident-header">
+                        <div class="incident-id">${incident.id || 'N/A'}</div>
+                        <span class="incident-badge ${badgeClass}">
+                            ${incident.severity || 'Unknown'}
+                        </span>
+                    </div>
+                    <div class="incident-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${incident.location || 'Unknown location'}</span>
+                    </div>
+                    <div class="incident-detail">
+                        <i class="fas fa-car-crash"></i>
+                        <span>Type: ${incident.type || 'Accident'}</span>
+                    </div>
+                    <div class="incident-detail">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Status: ${incident.status || 'Pending'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/api/notifications');
+                const data = await response.json();
+                
+                const container = document.getElementById('notifications-container');
+                container.innerHTML = '';
+                
+                if (data.notifications && data.notifications.length > 0) {
+                    data.notifications.forEach(notification => {
+                        const item = createNotificationItem(notification);
+                        container.innerHTML += item;
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-center text-muted">No new notifications</p>';
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                document.getElementById('notifications-container').innerHTML = 
+                    '<p class="text-center text-danger">Error loading notifications</p>';
+            }
+        }
+
+        // Create notification item HTML
+        function createNotificationItem(notification) {
+            const alertClass = notification.type === 'critical' ? 'alert-critical' : 
+                              notification.type === 'warning' ? 'alert-warning' : 'alert-info';
+            
+            return `
+                <div class="notification-item ${alertClass}">
+                    <div class="notification-text">${notification.message}</div>
+                    <div class="notification-time">${notification.time}</div>
+                </div>
+            `;
+        }
+
+        // Quick Action Functions
+        function updateIncident() {
+            alert('Update Incident dialog will open here');
+        }
+
+        // Siren Audio Variables
+        let sirenAudioContext = null;
+        let sirenOscillator = null;
+        let sirenGainNode = null;
+        let sirenActive = false;
+
+        function activateSiren() {
+            if (sirenActive) {
+                // Stop siren if already playing
+                stopSiren();
+                return;
+            }
+
+            if (confirm('Are you sure you want to activate the siren?')) {
+                playSiren();
+            }
+        }
+
+        function playSiren() {
+            // Create audio context
+            sirenAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Create oscillator for siren sound
+            sirenOscillator = sirenAudioContext.createOscillator();
+            sirenGainNode = sirenAudioContext.createGain();
+            
+            // Connect oscillator to gain to speakers
+            sirenOscillator.connect(sirenGainNode);
+            sirenGainNode.connect(sirenAudioContext.destination);
+            
+            // Set initial frequency (low pitch)
+            sirenOscillator.frequency.value = 400;
+            sirenOscillator.type = 'sine';
+            
+            // Set volume
+            sirenGainNode.gain.value = 0.3;
+            
+            // Start the oscillator
+            sirenOscillator.start();
+            
+            // Create the siren effect (rising and falling pitch)
+            let direction = 1; // 1 for up, -1 for down
+            let currentFreq = 400;
+            const minFreq = 400;
+            const maxFreq = 1200;
+            const step = 15;
+            
+            const sirenInterval = setInterval(() => {
+                if (!sirenActive) {
+                    clearInterval(sirenInterval);
+                    return;
+                }
+                
+                currentFreq += direction * step;
+                
+                if (currentFreq >= maxFreq) {
+                    direction = -1;
+                } else if (currentFreq <= minFreq) {
+                    direction = 1;
+                }
+                
+                sirenOscillator.frequency.value = currentFreq;
+            }, 50);
+            
+            sirenActive = true;
+            
+            // Update button appearance
+            const sirenBtn = event.target.closest('.action-btn');
+            if (sirenBtn) {
+                sirenBtn.style.background = 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)';
+                sirenBtn.innerHTML = '<i class="fas fa-bullhorn"></i> Stop Siren';
+            }
+            
+            // Show notification
+            alert('🚨 Siren activated! Click "Stop Siren" to deactivate.');
+            
+            // Store interval for cleanup
+            window.sirenInterval = sirenInterval;
+        }
+
+        function stopSiren() {
+            if (sirenOscillator) {
+                sirenOscillator.stop();
+                sirenOscillator = null;
+            }
+            
+            if (sirenAudioContext) {
+                sirenAudioContext.close();
+                sirenAudioContext = null;
+            }
+            
+            if (window.sirenInterval) {
+                clearInterval(window.sirenInterval);
+                window.sirenInterval = null;
+            }
+            
+            sirenActive = false;
+            
+            // Reset button appearance
+            const sirenBtn = document.querySelector('.action-btn[onclick*="activateSiren"]');
+            if (sirenBtn) {
+                sirenBtn.style.background = '';
+                sirenBtn.innerHTML = '<i class="fas fa-bullhorn"></i> Activate Siren';
+            }
+        }
+
+        function pingDispatcher() {
+            alert('Pinging dispatcher...');
+        }
+
+        function requestBackup() {
+            if (confirm('Request backup for the selected incident?')) {
+                alert('Backup requested!');
+            }
+        }
+
+        // Logout Modal Function
+        function showLogoutModal() {
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
+        }
+
+        // Auto-refresh data every 10 seconds
+        function autoRefresh() {
+            loadIncidents();
+            loadNotifications();
+        }
+
+        // Initial load
+        loadIncidents();
+        loadNotifications();
+
+        // Set up auto-refresh
+        setInterval(autoRefresh, 10000);
+    </script>
+</body>
+</html>

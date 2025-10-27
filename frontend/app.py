@@ -17,6 +17,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import asyncio
 import pandas as pd
+import threading
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -43,6 +44,46 @@ login_manager.session_protection = 'strong'  # Strong session protection
 # Database
 db = Prisma()
 
+# Background asyncio loop runner
+_bg_loop = None
+_bg_thread = None
+_bg_lock = threading.Lock()
+
+def _start_bg_loop():
+    """Start a background event loop in a separate daemon thread."""
+    global _bg_loop, _bg_thread
+    with _bg_lock:
+        if _bg_loop is not None and _bg_loop.is_running():
+            return
+
+        _bg_loop = asyncio.new_event_loop()
+
+        def run_loop(loop: asyncio.AbstractEventLoop):
+            asyncio.set_event_loop(loop)
+            loop.run_forever()
+
+        _bg_thread = threading.Thread(target=run_loop, args=(_bg_loop,), daemon=True)
+        _bg_thread.start()
+
+
+def run_in_background(coro, timeout=10):
+    """Run coroutine in the background event loop and return its result.
+
+    This submits the coroutine to the dedicated background loop using
+    asyncio.run_coroutine_threadsafe which avoids creating and closing
+    event loops per-request and prevents loop-binding issues with async
+    libraries like httpx/prisma.
+    """
+    global _bg_loop
+    if _bg_loop is None or not _bg_loop.is_running():
+        _start_bg_loop()
+
+    future = asyncio.run_coroutine_threadsafe(coro, _bg_loop)
+    return future.result(timeout)
+
+# Ensure the background loop starts at import time so Flask requests can use it
+_start_bg_loop()
+
 
 class User(UserMixin):
     """User class for Flask-Login"""
@@ -62,25 +103,28 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     """Load user by ID"""
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    async def get_user():
-        await db.connect()
-        user_data = await db.user.find_unique(where={"id": int(user_id)})
-        await db.disconnect()
-        return user_data
-    
-    user_data = loop.run_until_complete(get_user())
-    return User(user_data) if user_data else None
+    try:
+        async def get_user():
+            if not db.is_connected():
+                await db.connect()
+            user_data = await db.user.find_unique(where={"id": int(user_id)})
+            return user_data
+
+        user_data = run_in_background(get_user())
+        return User(user_data) if user_data else None
+    except Exception as e:
+        print(f"Error loading user: {e}")
+        return None
 
 
 # Flask Routes
 @server.route('/')
 def index():
-    """Redirect to login or dashboard"""
+    """Redirect to login page (logout if already authenticated)"""
+    # Always show login page at root - logout existing sessions
     if current_user.is_authenticated:
-        return redirect('/dashboard/')
+        logout_user()
+        session.clear()
     return redirect(url_for('login'))
 
 
@@ -91,7 +135,7 @@ def login():
     force_login = request.args.get('force') == '1'
     
     if current_user.is_authenticated and not force_login:
-        return redirect('/dashboard/')
+        return redirect('/dashboard')
     
     # If force login, logout first
     if force_login and current_user.is_authenticated:
@@ -102,14 +146,12 @@ def login():
         password = request.form.get('password')
         
         async def authenticate():
-            await db.connect()
+            if not db.is_connected():
+                await db.connect()
             user_data = await db.user.find_unique(where={"username": username})
-            await db.disconnect()
             return user_data
         
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        user_data = loop.run_until_complete(authenticate())
+        user_data = run_in_background(authenticate())
         
         if user_data:
             # Check password using bcrypt
@@ -123,7 +165,7 @@ def login():
                     # Don't use remember_me - session will expire when browser closes or after timeout
                     login_user(user, remember=False)
                     session.permanent = False  # Session ends when browser closes
-                    return redirect('/dashboard/')
+                    return redirect('/dashboard')
                 else:
                     flash('Account is inactive', 'danger')
             else:
@@ -144,304 +186,251 @@ def logout():
     return redirect(url_for('login'))
 
 
-# Initialize Dash app with professional fonts
-app = dash.Dash(
-    __name__,
-    server=server,
-    url_base_pathname='/dashboard/',
-    external_stylesheets=[
-        dbc.themes.BOOTSTRAP, 
-        dbc.icons.FONT_AWESOME,
-        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap',
-        '/static/custom.css'  # Custom professional typography
-    ],
-    suppress_callback_exceptions=True
-)
-
-# Dash Layout
-app.layout = dbc.Container([
-    dcc.Location(id='url', refresh=False),
-    dcc.Interval(id='interval-component', interval=10000, n_intervals=0),  # Update every 10 seconds
-    
-    # Navbar
-    dbc.Navbar(
-        dbc.Container([
-            html.Div([
-                html.Img(src='/static/images/logo.png', height='40px', style={'marginRight': '10px', 'borderRadius': '8px'}),
-                dbc.NavbarBrand("🚨 RoadSafeNet", className="ms-2"),
-            ], style={'display': 'flex', 'alignItems': 'center'}),
-            dbc.Nav([
-                dbc.NavItem(dbc.NavLink("Dashboard", href="/dashboard/")),
-                dbc.NavItem(dbc.NavLink("Incidents", href="/dashboard/incidents")),
-                dbc.NavItem(dbc.NavLink("Analytics", href="/dashboard/analytics")),
-                dbc.NavItem(dbc.NavLink("Notifications", href="/dashboard/notifications")),
-                dbc.NavItem(dbc.NavLink("Users", href="/dashboard/users")),
-                dbc.NavItem(dbc.NavLink("Logs", href="/dashboard/logs")),
-                dbc.NavItem(dbc.NavLink("Settings", href="/dashboard/settings")),
-                dbc.NavItem(html.A("Logout", href="/logout", className="nav-link", style={'color': 'rgba(255,255,255,.55)', 'cursor': 'pointer'})),
-            ], navbar=True)
-        ], fluid=True),
-        color="dark",
-        dark=True,
-        className="mb-4"
-    ),
-    
-    # Main content
-    html.Div(id='page-content'),
-    
-], fluid=True, style={
-    'backgroundColor': '#f8f9fa',
-    'fontFamily': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-})
+@server.route('/dashboard')
+@server.route('/dashboard/')
+@login_required
+def dashboard():
+    """Main dashboard page"""
+    return render_template('dashboard.html')
 
 
-# Home Dashboard Layout
-def create_home_layout():
-    """Create home dashboard layout"""
-    return dbc.Container([
-        dbc.Row([
-            dbc.Col([
-                html.H2("🏠 Dashboard Overview", className="mb-4", 
-                       style={'fontFamily': "'Poppins', sans-serif", 'fontWeight': '700', 'color': '#2c3e50', 'letterSpacing': '-0.5px'}),
-            ], width=12)
-        ]),
-        
-        # Statistics Cards
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4("Total Accidents", className="card-title", 
-                               style={'fontFamily': "'Poppins', sans-serif", 'fontWeight': '600', 'fontSize': '1rem'}),
-                        html.H2(id="total-accidents", className="text-primary",
-                               style={'fontFamily': "'Poppins', sans-serif", 'fontWeight': '700', 'fontSize': '2.5rem'}),
-                        html.P("All time", className="text-muted",
-                              style={'fontWeight': '500', 'fontSize': '0.9rem'})
-                    ])
-                ], className="shadow-sm")
-            ], md=3),
-            
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4("Pending", className="card-title"),
-                        html.H2(id="pending-accidents", className="text-warning"),
-                        html.P("Awaiting response", className="text-muted")
-                    ])
-                ], className="shadow-sm")
-            ], md=3),
-            
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4("Last 24h", className="card-title"),
-                        html.H2(id="recent-accidents", className="text-info"),
-                        html.P("Recent detections", className="text-muted")
-                    ])
-                ], className="shadow-sm")
-            ], md=3),
-            
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4("Alerts Sent", className="card-title"),
-                        html.H2(id="total-alerts", className="text-success"),
-                        html.P("Total notifications", className="text-muted")
-                    ])
-                ], className="shadow-sm")
-            ], md=3),
-        ], className="mb-4"),
-        
-        # Charts
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("📊 Accident Timeline (Last 7 Days)"),
-                    dbc.CardBody([
-                        dcc.Graph(id="timeline-chart")
-                    ])
-                ], className="shadow-sm")
-            ], md=8),
-            
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("📈 Severity Distribution"),
-                    dbc.CardBody([
-                        dcc.Graph(id="severity-chart")
-                    ])
-                ], className="shadow-sm")
-            ], md=4),
-        ], className="mb-4"),
-        
-        # Map
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("🗺️ Accident Heatmap"),
-                    dbc.CardBody([
-                        dcc.Graph(id="accident-map")
-                    ])
-                ], className="shadow-sm")
-            ], md=12),
-        ]),
-        
-    ], fluid=True)
+@server.route('/dashboard/analytics')
+@server.route('/dashboard/analytics/')
+@login_required
+def analytics():
+    """Analytics page"""
+    return render_template('analytics.html')
 
 
-# Incidents Page Layout
-def create_incidents_layout():
-    """Create incidents page layout"""
-    return dbc.Container([
-        dbc.Row([
-            dbc.Col([
-                html.H2("🚦 Recent Incidents", className="mb-4"),
-            ], width=12)
-        ]),
-        
-        # Filters
-        dbc.Row([
-            dbc.Col([
-                dbc.Label("Severity"),
-                dcc.Dropdown(
-                    id='severity-filter',
-                    options=[
-                        {'label': 'All', 'value': 'all'},
-                        {'label': 'Low', 'value': 'low'},
-                        {'label': 'Medium', 'value': 'medium'},
-                        {'label': 'High', 'value': 'high'},
-                        {'label': 'Critical', 'value': 'critical'}
-                    ],
-                    value='all'
-                )
-            ], md=3),
-            
-            dbc.Col([
-                dbc.Label("Status"),
-                dcc.Dropdown(
-                    id='status-filter',
-                    options=[
-                        {'label': 'All', 'value': 'all'},
-                        {'label': 'Pending', 'value': 'pending'},
-                        {'label': 'Confirmed', 'value': 'confirmed'},
-                        {'label': 'False Alarm', 'value': 'false_alarm'},
-                        {'label': 'Resolved', 'value': 'resolved'}
-                    ],
-                    value='all'
-                )
-            ], md=3),
-        ], className="mb-4"),
-        
-        # Incidents Table
-        dbc.Row([
-            dbc.Col([
-                html.Div(id="incidents-table")
-            ], width=12)
-        ]),
-        
-    ], fluid=True)
+@server.route('/dashboard/notifications')
+@server.route('/dashboard/notifications/')
+@login_required
+def notifications_page():
+    """Notifications management page"""
+    return render_template('notifications.html')
 
 
-# Analytics Page Layout
-def create_analytics_layout():
-    """Create analytics page layout"""
-    return dbc.Container([
-        dbc.Row([
-            dbc.Col([
-                html.H2("📊 Analytics Dashboard", className="mb-4"),
-            ], width=12)
-        ]),
+@server.route('/api/incidents')
+@login_required
+def get_incidents():
+    """API endpoint to get active incidents"""
+    async def fetch_incidents():
+        if not db.is_connected():
+            await db.connect()
         
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("📈 Accidents by Hour of Day"),
-                    dbc.CardBody([
-                        dcc.Graph(id="hourly-chart")
-                    ])
-                ], className="shadow-sm")
-            ], md=6),
-            
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("📅 Accidents by Day of Week"),
-                    dbc.CardBody([
-                        dcc.Graph(id="weekly-chart")
-                    ])
-                ], className="shadow-sm")
-            ], md=6),
-        ], className="mb-4"),
+        # Get recent accidents
+        accidents = await db.accident.find_many(
+            where={'status': {'not': 'RESOLVED'}},
+            take=10,
+            order={'timestamp': 'desc'}
+        )
         
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("🌍 Accidents by City"),
-                    dbc.CardBody([
-                        dcc.Graph(id="city-chart")
-                    ])
-                ], className="shadow-sm")
-            ], md=12),
-        ]),
-        
-    ], fluid=True)
-
-
-# Callbacks for routing
-@app.callback(
-    Output('page-content', 'children'),
-    Input('url', 'pathname')
-)
-def display_page(pathname):
-    """Route to different pages"""
-    if pathname == '/dashboard/' or pathname == '/dashboard':
-        return create_home_layout()
-    elif pathname == '/dashboard/incidents':
-        return create_incidents_layout()
-    elif pathname == '/dashboard/analytics':
-        return create_analytics_layout()
-    elif pathname == '/dashboard/notifications':
-        return html.H2("🔔 Notifications Management - Coming Soon")
-    elif pathname == '/dashboard/users':
-        return html.H2("👥 User Management - Coming Soon")
-    elif pathname == '/dashboard/logs':
-        return html.H2("📝 System Logs - Coming Soon")
-    elif pathname == '/dashboard/settings':
-        return html.H2("⚙️ Settings - Coming Soon")
-    else:
-        return create_home_layout()
-
-
-# Callback for updating statistics
-@app.callback(
-    [Output('total-accidents', 'children'),
-     Output('pending-accidents', 'children'),
-     Output('recent-accidents', 'children'),
-     Output('total-alerts', 'children')],
-    Input('interval-component', 'n_intervals')
-)
-def update_statistics(n):
-    """Update statistics cards"""
-    async def get_stats():
-        await db.connect()
-        
-        total = await db.accident.count()
-        pending = await db.accident.count(where={"status": "pending"})
-        
-        yesterday = datetime.now() - timedelta(days=1)
-        recent = await db.accident.count(where={"timestamp": {"gte": yesterday}})
-        
-        alerts = await db.alert.count()
-        
-        await db.disconnect()
-        return total, pending, recent, alerts
-    
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+        return accidents
     
     try:
-        stats = loop.run_until_complete(get_stats())
-        return str(stats[0]), str(stats[1]), str(stats[2]), str(stats[3])
-    except:
-        return "0", "0", "0", "0"
+        accidents = run_in_background(fetch_incidents())
+        
+        # Format data for frontend
+        incidents = []
+        for acc in accidents:
+            incident = {
+                'id': f'Incident #{acc.id}',
+                'location': f'{acc.latitude:.4f}°N, {acc.longitude:.4f}°E' if acc.latitude and acc.longitude else 'Unknown',
+                'type': acc.accident_type or 'Collision',
+                'severity': acc.severity.capitalize() if acc.severity else 'High',
+                'status': acc.status.replace('_', ' ').title() if acc.status else 'En Route',
+                'timestamp': acc.timestamp.strftime('%Y-%m-%d %H:%M:%S') if acc.timestamp else ''
+            }
+            incidents.append(incident)
+        
+        return jsonify({'incidents': incidents})
+    except Exception as e:
+        print(f"Error fetching incidents: {e}")
+        return jsonify({'incidents': []})
+
+
+@server.route('/api/notifications')
+@login_required
+def get_notifications():
+    """API endpoint to get recent notifications"""
+    async def fetch_notifications():
+        if not db.is_connected():
+            await db.connect()
+        
+        # Get recent alerts
+        alerts = await db.alert.find_many(
+            take=10,
+            order={'sent_at': 'desc'}
+        )
+        
+        return alerts
+    
+    try:
+        alerts = run_in_background(fetch_notifications())
+        
+        # Format data for frontend
+        notifications = []
+        for alert in alerts:
+            notification = {
+                'id': alert.id,
+                'message': alert.message or 'New alert',
+                'type': alert.alert_type or 'info',
+                'timestamp': alert.timestamp.strftime('%Y-%m-%d %H:%M:%S') if alert.timestamp else ''
+            }
+            notifications.append(notification)
+        
+        return jsonify({'notifications': notifications})
+    except Exception as e:
+        print(f"Error fetching notifications: {e}")
+        return jsonify({'notifications': []})
+
+
+@server.route('/api/analytics')
+@login_required
+def get_analytics():
+    """API endpoint to get analytics data"""
+    async def fetch_analytics():
+        if not db.is_connected():
+            await db.connect()
+        
+        # Get statistics
+        total = await db.accident.count()
+        
+        # Last 7 days
+        week_ago = datetime.now() - timedelta(days=7)
+        week_count = await db.accident.count(where={"timestamp": {"gte": week_ago}})
+        
+        # Critical incidents
+        critical = await db.accident.count(where={"severity": "critical"})
+        
+        # Resolved incidents
+        resolved = await db.accident.count(where={"status": "resolved"})
+        
+        # Get all accidents for timeline
+        accidents = await db.accident.find_many(
+            order={'timestamp': 'desc'},
+            take=100
+        )
+        
+        return {
+            'total': total,
+            'week': week_count,
+            'critical': critical,
+            'resolved': resolved,
+            'accidents': accidents
+        }
+    
+    try:
+        data = run_in_background(fetch_analytics())
+        
+        # Process timeline data (last 30 days)
+        timeline = []
+        for i in range(30):
+            date = (datetime.now() - timedelta(days=29-i)).strftime('%Y-%m-%d')
+            count = sum(1 for acc in data['accidents'] if acc.timestamp and acc.timestamp.strftime('%Y-%m-%d') == date)
+            timeline.append({'date': date, 'count': count})
+        
+        # Severity distribution
+        severity = {
+            'critical': sum(1 for acc in data['accidents'] if acc.severity == 'critical'),
+            'high': sum(1 for acc in data['accidents'] if acc.severity == 'high'),
+            'medium': sum(1 for acc in data['accidents'] if acc.severity == 'medium'),
+            'low': sum(1 for acc in data['accidents'] if acc.severity == 'low')
+        }
+        
+        # Hourly distribution
+        hourly = [0] * 24
+        for acc in data['accidents']:
+            if acc.timestamp:
+                hour = acc.timestamp.hour
+                hourly[hour] += 1
+        
+        # Location distribution (top 10)
+        location_counts = {}
+        for acc in data['accidents']:
+            if hasattr(acc, 'location') and acc.location:
+                loc = acc.location.city or 'Unknown'
+                location_counts[loc] = location_counts.get(loc, 0) + 1
+        
+        locations = [
+            {'location': loc, 'count': count}
+            for loc, count in sorted(location_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        ]
+        
+        return jsonify({
+            'stats': {
+                'total': data['total'],
+                'week': data['week'],
+                'critical': data['critical'],
+                'resolved': data['resolved']
+            },
+            'timeline': timeline,
+            'severity': severity,
+            'hourly': hourly,
+            'locations': locations
+        })
+    except Exception as e:
+        print(f"Error fetching analytics: {e}")
+        return jsonify({
+            'stats': {'total': 0, 'week': 0, 'critical': 0, 'resolved': 0},
+            'timeline': [],
+            'severity': {'critical': 0, 'high': 0, 'medium': 0, 'low': 0},
+            'hourly': [0] * 24,
+            'locations': []
+        })
+
+
+# OLD DASH APP - DISABLED IN FAVOR OF NEW HTML DASHBOARD
+# The new dashboard is served via Flask routes: /dashboard, /dashboard/analytics, /dashboard/notifications
+# Keeping this code commented for reference, but it's no longer active
+
+# app = dash.Dash(
+#     __name__,
+#     server=server,
+#     url_base_pathname='/old-dashboard/',  # Changed to avoid conflict
+#     external_stylesheets=[
+#         dbc.themes.BOOTSTRAP, 
+#         dbc.icons.FONT_AWESOME,
+#         'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap',
+#         '/static/custom.css'
+#     ],
+#     suppress_callback_exceptions=True
+# )
+
+# ALL DASH CODE BELOW IS DISABLED - USING NEW HTML TEMPLATES INSTEAD
+# The old Dash layout and callbacks are kept for reference but commented out
+
+# app.layout = dbc.Container([
+#     dcc.Location(id='url', refresh=False),
+#     dcc.Interval(id='interval-component', interval=10000, n_intervals=0),
+#     dbc.Navbar(...),
+#     html.Div(id='page-content'),
+# ], fluid=True)
+
+
+# ALL OLD DASH LAYOUT FUNCTIONS COMMENTED OUT - NOT NEEDED WITH NEW HTML TEMPLATES
+
+# def create_home_layout():
+#     """Old Dash home layout"""
+#     pass
+
+# def create_incidents_layout():
+#     """Old Dash incidents layout"""
+#     pass
+
+# def create_analytics_layout():
+#     """Old Dash analytics layout"""
+#     pass
+
+# ALL OLD DASH CALLBACKS COMMENTED OUT - NOT NEEDED WITH NEW HTML TEMPLATES
+
+# @app.callback(Output('page-content', 'children'), Input('url', 'pathname'))
+# def display_page(pathname):
+#     pass
+
+# @app.callback([Output('total-accidents', 'children'), ...], Input('interval-component', 'n_intervals'))
+# def update_statistics(n):
+#     pass
 
 
 if __name__ == '__main__':

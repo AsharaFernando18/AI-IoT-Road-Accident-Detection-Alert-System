@@ -119,3 +119,97 @@ model EmergencyContact {
   
   @@index([is_active])
 }
+
+// New Enhanced Models for Emergency Response System
+
+model Responder {
+  id              Int      @id @default(autoincrement())
+  name            String
+  role            String   // hospital, police, ambulance
+  telegram_bot_id String   @unique
+  phone           String?
+  email           String?
+  address         String?
+  city            String?
+  state           String?
+  latitude        Float?
+  longitude       Float?
+  coverage_radius Int?     // in kilometers
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  
+  // Relations
+  notifications   Notification[]
+  
+  @@index([role])
+  @@index([city])
+  @@index([is_active])
+}
+
+model Incident {
+  id          Int       @id @default(autoincrement())
+  accident_id Int?      // Link to old Accident model
+  timestamp   DateTime  @default(now())
+  location_lat Float
+  location_lon Float
+  address     String?
+  city        String?
+  state       String?
+  country     String    @default("Malaysia")
+  severity    String    // low, medium, high, critical
+  status      String    @default("pending") // pending, dispatched, resolved
+  type        String?   // collision, rollover, pedestrian, fire
+  confidence  Float?
+  description String?
+  notes       String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  
+  // Relations
+  media         Media[]
+  notifications Notification[]
+  
+  @@index([timestamp])
+  @@index([severity])
+  @@index([status])
+  @@index([city])
+}
+
+model Media {
+  id          Int      @id @default(autoincrement())
+  incident_id Int
+  media_type  String   // image, video, clip
+  file_path   String
+  file_size   Int?
+  duration    Int?     // for videos, in seconds
+  created_at  DateTime @default(now())
+  
+  // Relations
+  incident Incident @relation(fields: [incident_id], references: [id], onDelete: Cascade)
+  
+  @@index([incident_id])
+  @@index([media_type])
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  incident_id   Int
+  responder_id  Int
+  language      String   @default("en")
+  message       String
+  sent_to       String   // hospital, police, ambulance
+  sent_time     DateTime @default(now())
+  delivered_time DateTime?
+  status        String   @default("sent") // sent, delivered, failed
+  error_message String?
+  
+  // Relations
+  incident  Incident  @relation(fields: [incident_id], references: [id], onDelete: Cascade)
+  responder Responder @relation(fields: [responder_id], references: [id], onDelete: Cascade)
+  
+  @@index([incident_id])
+  @@index([responder_id])
+  @@index([sent_time])
+  @@index([status])
+}
