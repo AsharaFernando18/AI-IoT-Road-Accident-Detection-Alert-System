@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoadSafeNet - Notification Management</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --navy-blue: #1e3a8a;
+            --red-alert: #dc2626;
+            --orange-warning: #f59e0b;
+            --green-success: #16a34a;
+            --blue-info: #3b82f6;
+            --purple-admin: #7c3aed;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+        }
+        
+        /* Header */
+        .navbar {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+        }
+        
+        .navbar-brand {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-link {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9) !important;
+            padding: 0.75rem 1.25rem !important;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: var(--orange-warning);
+            border-radius: 2px;
+        }
+        
+        /* Main Container */
+        .main-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: var(--gray-700);
+            font-size: 1rem;
+        }
+        
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.sent { border-color: var(--green-success); }
+        .stat-card.rate { border-color: var(--blue-info); }
+        .stat-card.ack { border-color: var(--orange-warning); }
+        .stat-card.open { border-color: var(--purple-admin); }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card.sent .stat-icon { background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); color: white; }
+        .stat-card.rate .stat-icon { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); color: white; }
+        .stat-card.ack .stat-icon { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; }
+        .stat-card.open .stat-icon { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Cards */
+        .config-card, .template-card, .metrics-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .card-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--navy-blue);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* Language Priority List */
+        .language-list {
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 0.5rem;
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .language-item {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        
+        .language-item:hover {
+            background: var(--gray-100);
+            transform: translateX(5px);
+        }
+        
+        .language-flag {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        
+        .language-name {
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        .language-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-move {
+            background: none;
+            border: none;
+            color: var(--gray-700);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-move:hover {
+            background: var(--gray-200);
+            color: var(--navy-blue);
+        }
+        
+        .btn-remove {
+            background: none;
+            border: none;
+            color: var(--red-alert);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-remove:hover {
+            background: #fee2e2;
+        }
+        
+        /* Buttons */
+        .btn-primary-custom {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-secondary-custom {
+            font-family: 'Space Grotesk', sans-serif;
+            background: white;
+            color: var(--navy-blue);
+            border: 2px solid var(--navy-blue);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: var(--navy-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-test {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .metric-item {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid var(--blue-info);
+        }
+        
+        .metric-label {
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        
+        /* Alert Box */
+        .alert-custom {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--orange-warning);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-custom i {
+            color: var(--orange-warning);
+            margin-right: 0.5rem;
+        }
+        
+        /* Template Dropdown */
+        .template-preview {
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+        
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem 2rem;
+            border: none;
+        }
+        
+        .modal-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        /* Logout Modal Icon */
+        .logout-modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #f59e0b;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-card, .template-card, .metrics-card {
+                padding: 1.5rem;
+            }
+            
+            .card-title {
+                font-size: 1.25rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 0.75rem;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.35rem;
+            }
+            
+            .config-card, .template-card, .metrics-card {
+                padding: 1rem;
+            }
+            
+            .btn-primary-custom,
+            .btn-secondary-custom,
+            .btn-test {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-shield-alt me-2"></i>RoadSafeNet
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/analytics">
+                            <i class="fas fa-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/notifications">
+                            <i class="fas fa-bell me-1"></i>Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/users">
+                            <i class="fas fa-users me-1"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard/notification-management">
+                            <i class="fas fa-bell-concierge me-1"></i>Notification Config
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/settings">
+                            <i class="fas fa-sliders-h me-1"></i>Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-bell-concierge me-2"></i>Notification Management
+            </h1>
+            <p class="page-subtitle">Configure notification settings, templates, and multi-language support</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card sent">
+                <div class="stat-icon">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="stat-value" id="messages-sent">1600</div>
+                <div class="stat-label">Messages Sent</div>
+            </div>
+            
+            <div class="stat-card rate">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value" id="delivery-rate">97%</div>
+                <div class="stat-label">Delivery Success Rate</div>
+            </div>
+            
+            <div class="stat-card ack">
+                <div class="stat-icon">
+                    <i class="fas fa-reply"></i>
+                </div>
+                <div class="stat-value" id="ack-ratio">89%</div>
+                <div class="stat-label">Acknowledgement Ratio</div>
+            </div>
+            
+            <div class="stat-card open">
+                <div class="stat-icon">
+                    <i class="fas fa-envelope-open"></i>
+                </div>
+                <div class="stat-value" id="open-rate">72%</div>
+                <div class="stat-label">Open/Click Metrics</div>
+            </div>
+        </div>
+
+        <!-- Configuration Card -->
+        <div class="config-card">
+            <div class="card-header-custom">
+                <h2 class="card-title">
+                    <i class="fas fa-sliders-h me-2"></i>Trigger Configuration
+                </h2>
+            </div>
+
+            <div class="alert-custom">
+                <i class="fas fa-info-circle"></i>
+                <strong>Info:</strong> Configure when notifications should be triggered based on accident severity and priority languages.
+            </div>
+
+            <form id="configForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="triggerCondition" class="form-label">
+                                <i class="fas fa-filter"></i>Trigger Condition
+                            </label>
+                            <select class="form-select" id="triggerCondition">
+                                <option value="all">All Accidents</option>
+                                <option value="severity-medium" selected>Severity ≥ Medium</option>
+                                <option value="severity-high">Severity ≥ High</option>
+                                <option value="critical-only">Critical Only</option>
+                                <option value="custom">Custom Rules</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="fallbackChannel" class="form-label">
+                                <i class="fas fa-route"></i>Fallback Channel
+                            </label>
+                            <select class="form-select" id="fallbackChannel">
+                                <option value="sms" selected>SMS</option>
+                                <option value="email">Email</option>
+                                <option value="telegram">Telegram</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="push">Push Notification</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-language"></i>Language Priority
+                    </label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-select mb-2" id="languageSelect">
+                                <option value="">Select language to add...</option>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="es">🇪🇸 Spanish</option>
+                                <option value="ar">🇸🇦 Arabic</option>
+                                <option value="hi">🇮🇳 Hindi</option>
+                                <option value="zh">🇨🇳 Mandarin</option>
+                                <option value="fr">🇫🇷 French</option>
+                                <option value="pt">🇵🇹 Portuguese</option>
+                                <option value="ru">🇷🇺 Russian</option>
+                                <option value="ja">🇯🇵 Japanese</option>
+                                <option value="de">🇩🇪 German</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary-custom w-100" onclick="addLanguage()">
+                                <i class="fas fa-plus me-2"></i>Add Language
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="language-list" id="languageList">
+                                <!-- Languages will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                    <button type="button" class="btn btn-secondary-custom" onclick="resetConfig()">
+                        <i class="fas fa-undo me-2"></i>Reset
+                    </button>
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>Save Configuration
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Template Card -->
+        <div class="template-card">
+            <div class="card-header-custom">
+                <h2 class="card-title">
+                    <i class="fas fa-file-alt me-2"></i>Message Templates
+                </h2>
+            </div>
+
+            <form id="templateForm">
+                <div class="form-group">
+                    <label for="selectTemplate" class="form-label">
+                        <i class="fas fa-clipboard-list"></i>Select Template
+                    </label>
+                    <select class="form-select" id="selectTemplate" onchange="loadTemplate()">
+                        <option value="collision-alert">Collision Alert</option>
+                        <option value="fire-detected">Fire Detected</option>
+                        <option value="medical-emergency">Medical Emergency</option>
+                        <option value="traffic-congestion">Traffic Congestion</option>
+                        <option value="road-closure">Road Closure</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageContent" class="form-label">
+                        <i class="fas fa-comment-alt"></i>Message Content
+                    </label>
+                    <textarea class="form-control" id="messageContent" placeholder="Enter your message template here...">🚨 URGENT: Collision detected at {location}
+
+Severity: {severity}
+Time: {timestamp}
+Coordinates: {latitude}, {longitude}
+
+Emergency services have been notified. Please avoid the area.
+
+- RoadSafeNet Alert System</textarea>
+                </div>
+
+                <div class="template-preview" id="templatePreview">
+                    <strong>Preview:</strong><br>
+                    🚨 URGENT: Collision detected at Junction 5, Highway A1<br><br>
+                    Severity: High<br>
+                    Time: 2025-11-03 19:45:30<br>
+                    Coordinates: 3.1390, 101.6869<br><br>
+                    Emergency services have been notified. Please avoid the area.<br><br>
+                    - RoadSafeNet Alert System
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                    <button type="button" class="btn-test" onclick="sendTestMessage()">
+                        <i class="fas fa-vial me-2"></i>Send Test Message
+                    </button>
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>Save Template
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Metrics Card -->
+        <div class="metrics-card">
+            <div class="card-header-custom">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-bar me-2"></i>Performance Metrics
+                </h2>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="metric-label">Messages Sent</div>
+                    <div class="metric-value">1600</div>
+                </div>
+                
+                <div class="metric-item">
+                    <div class="metric-label">Delivery Success Rate</div>
+                    <div class="metric-value">97%</div>
+                </div>
+                
+                <div class="metric-item">
+                    <div class="metric-label">Acknowledgement Ratio</div>
+                    <div class="metric-value">89%</div>
+                </div>
+                
+                <div class="metric-item">
+                    <div class="metric-label">Open/Click Metrics</div>
+                    <div class="metric-value">72%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">
+                        <i class="fas fa-sign-out-alt me-2"></i>Confirm Logout
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="logout-modal-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h5>Are you sure you want to logout?</h5>
+                    <p class="text-muted">You will be redirected to the login page.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="window.location.href='/logout'">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initial languages
+        const languages = [
+            { code: 'en', flag: '🇬🇧', name: 'English' },
+            { code: 'es', flag: '🇪🇸', name: 'Spanish' },
+            { code: 'ar', flag: '🇸🇦', name: 'Arabic' },
+            { code: 'hi', flag: '🇮🇳', name: 'Hindi' },
+            { code: 'zh', flag: '🇨🇳', name: 'Mandarin' }
+        ];
+
+        let selectedLanguages = [
+            { code: 'en', flag: '🇬🇧', name: 'English' },
+            { code: 'es', flag: '🇪🇸', name: 'Spanish' },
+            { code: 'ar', flag: '🇸🇦', name: 'Arabic' }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderLanguages();
+        });
+
+        // Render language list
+        function renderLanguages() {
+            const list = document.getElementById('languageList');
+            list.innerHTML = '';
+            
+            if (selectedLanguages.length === 0) {
+                list.innerHTML = '<p class="text-muted text-center p-3">No languages selected</p>';
+                return;
+            }
+            
+            selectedLanguages.forEach((lang, index) => {
+                const item = document.createElement('div');
+                item.className = 'language-item';
+                item.innerHTML = `
+                    <span class="language-flag">${lang.flag}</span>
+                    <span class="language-name">${lang.name}</span>
+                    <div class="language-actions">
+                        ${index > 0 ? `<button type="button" class="btn-move" onclick="moveLanguage(${index}, -1)"><i class="fas fa-arrow-up"></i></button>` : ''}
+                        ${index < selectedLanguages.length - 1 ? `<button type="button" class="btn-move" onclick="moveLanguage(${index}, 1)"><i class="fas fa-arrow-down"></i></button>` : ''}
+                        <button type="button" class="btn-remove" onclick="removeLanguage(${index})"><i class="fas fa-times"></i></button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Add language
+        function addLanguage() {
+            const select = document.getElementById('languageSelect');
+            const code = select.value;
+            
+            if (!code) {
+                alert('Please select a language');
+                return;
+            }
+            
+            // Check if already added
+            if (selectedLanguages.find(l => l.code === code)) {
+                alert('This language is already added');
+                return;
+            }
+            
+            // Find language details
+            const lang = languages.find(l => l.code === code);
+            if (lang) {
+                selectedLanguages.push(lang);
+                renderLanguages();
+                select.value = '';
+            }
+        }
+
+        // Remove language
+        function removeLanguage(index) {
+            selectedLanguages.splice(index, 1);
+            renderLanguages();
+        }
+
+        // Move language priority
+        function moveLanguage(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < selectedLanguages.length) {
+                [selectedLanguages[index], selectedLanguages[newIndex]] = [selectedLanguages[newIndex], selectedLanguages[index]];
+                renderLanguages();
+            }
+        }
+
+        // Reset configuration
+        function resetConfig() {
+            if (confirm('Are you sure you want to reset the configuration to defaults?')) {
+                document.getElementById('triggerCondition').value = 'severity-medium';
+                document.getElementById('fallbackChannel').value = 'sms';
+                selectedLanguages = [
+                    { code: 'en', flag: '🇬🇧', name: 'English' },
+                    { code: 'es', flag: '🇪🇸', name: 'Spanish' },
+                    { code: 'ar', flag: '🇸🇦', name: 'Arabic' }
+                ];
+                renderLanguages();
+            }
+        }
+
+        // Save configuration
+        document.getElementById('configForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const config = {
+                trigger_condition: document.getElementById('triggerCondition').value,
+                fallback_channel: document.getElementById('fallbackChannel').value,
+                language_priority: selectedLanguages.map(l => l.code)
+            };
+            
+            try {
+                const response = await fetch('/api/notification-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Configuration saved successfully!');
+                } else {
+                    alert('❌ Failed to save configuration');
+                }
+            } catch (error) {
+                console.error('Error saving config:', error);
+                alert('❌ Error saving configuration');
+            }
+        });
+
+        // Load template
+        function loadTemplate() {
+            const template = document.getElementById('selectTemplate').value;
+            const templates = {
+                'collision-alert': `🚨 URGENT: Collision detected at {location}
+
+Severity: {severity}
+Time: {timestamp}
+Coordinates: {latitude}, {longitude}
+
+Emergency services have been notified. Please avoid the area.
+
+- RoadSafeNet Alert System`,
+                'fire-detected': `🔥 FIRE ALERT: Fire detected at {location}
+
+Severity: {severity}
+Time: {timestamp}
+
+Fire department dispatched. Evacuate immediately if nearby.
+
+- RoadSafeNet Alert System`,
+                'medical-emergency': `🚑 MEDICAL EMERGENCY at {location}
+
+Time: {timestamp}
+Coordinates: {latitude}, {longitude}
+
+Ambulance en route. Clear the path.
+
+- RoadSafeNet Alert System`,
+                'traffic-congestion': `⚠️ TRAFFIC ALERT: Heavy congestion at {location}
+
+Estimated delay: {duration}
+Alternative routes available.
+
+- RoadSafeNet Alert System`,
+                'road-closure': `🚧 ROAD CLOSURE: {location} is closed
+
+Reason: {reason}
+Duration: {duration}
+
+Please use alternative routes.
+
+- RoadSafeNet Alert System`
+            };
+            
+            document.getElementById('messageContent').value = templates[template] || '';
+        }
+
+        // Save template
+        document.getElementById('templateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                template_name: document.getElementById('selectTemplate').value,
+                content: document.getElementById('messageContent').value
+            };
+            
+            try {
+                const response = await fetch('/api/notification-template', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Template saved successfully!');
+                } else {
+                    alert('❌ Failed to save template');
+                }
+            } catch (error) {
+                console.error('Error saving template:', error);
+                alert('❌ Error saving template');
+            }
+        });
+
+        // Send test message
+        async function sendTestMessage() {
+            const content = document.getElementById('messageContent').value;
+            
+            if (confirm('Send a test notification with the current template?')) {
+                try {
+                    const response = await fetch('/api/notification-test', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content: content })
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Test message sent successfully!');
+                    } else {
+                        alert('❌ Failed to send test message');
+                    }
+                } catch (error) {
+                    console.error('Error sending test:', error);
+                    alert('❌ Error sending test message');
+                }
+            }
+        }
+
+        // Show logout modal
+        function showLogoutModal() {
+            const modal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>

@@ -210,6 +210,14 @@ def notifications_page():
     return render_template('notifications.html')
 
 
+@server.route('/dashboard/users')
+@server.route('/dashboard/users/')
+@login_required
+def users_page():
+    """User management page"""
+    return render_template('users.html')
+
+
 @server.route('/api/incidents')
 @login_required
 def get_incidents():
@@ -283,6 +291,169 @@ def get_notifications():
     except Exception as e:
         print(f"Error fetching notifications: {e}")
         return jsonify({'notifications': []})
+
+
+@server.route('/api/users', methods=['GET', 'POST'])
+@login_required
+def manage_users():
+    """API endpoint to get all users or create a new user"""
+    if request.method == 'GET':
+        async def fetch_users():
+            if not db.is_connected():
+                await db.connect()
+            
+            users = await db.user.find_many(
+                order={'created_at': 'desc'}
+            )
+            return [
+                {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'full_name': user.full_name,
+                    'role': user.role,
+                    'is_active': user.is_active,
+                    'created_at': user.created_at.isoformat() if user.created_at else None,
+                    'updated_at': user.updated_at.isoformat() if user.updated_at else None
+                }
+                for user in users
+            ]
+        
+        try:
+            users_data = run_in_background(fetch_users())
+            return jsonify({'users': users_data})
+        except Exception as e:
+            print(f"Error fetching users: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    elif request.method == 'POST':
+        async def create_user():
+            if not db.is_connected():
+                await db.connect()
+            
+            data = request.json
+            
+            # Hash the password
+            password_hash = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            
+            # Create user
+            user = await db.user.create(
+                data={
+                    'username': data['username'],
+                    'email': data['email'],
+                    'password_hash': password_hash,
+                    'full_name': data.get('full_name'),
+                    'role': data['role'],
+                    'is_active': data.get('is_active', True)
+                }
+            )
+            
+            return {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': user.role,
+                'is_active': user.is_active,
+                'created_at': user.created_at.isoformat() if user.created_at else None
+            }
+        
+        try:
+            user_data = run_in_background(create_user())
+            return jsonify(user_data), 201
+        except Exception as e:
+            print(f"Error creating user: {e}")
+            return jsonify({'error': str(e)}), 400
+
+
+@server.route('/api/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
+@login_required
+def manage_user(user_id):
+    """API endpoint to get, update, or delete a specific user"""
+    if request.method == 'GET':
+        async def fetch_user():
+            if not db.is_connected():
+                await db.connect()
+            
+            user = await db.user.find_unique(where={'id': user_id})
+            if not user:
+                return None
+            
+            return {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': user.role,
+                'is_active': user.is_active,
+                'created_at': user.created_at.isoformat() if user.created_at else None,
+                'updated_at': user.updated_at.isoformat() if user.updated_at else None
+            }
+        
+        try:
+            user_data = run_in_background(fetch_user())
+            if user_data is None:
+                return jsonify({'error': 'User not found'}), 404
+            return jsonify(user_data)
+        except Exception as e:
+            print(f"Error fetching user: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    elif request.method == 'PUT':
+        async def update_user():
+            if not db.is_connected():
+                await db.connect()
+            
+            data = request.json
+            update_data = {
+                'username': data['username'],
+                'email': data['email'],
+                'full_name': data.get('full_name'),
+                'role': data['role'],
+                'is_active': data.get('is_active', True)
+            }
+            
+            # Update password if provided
+            if 'password' in data and data['password']:
+                password_hash = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                update_data['password_hash'] = password_hash
+            
+            user = await db.user.update(
+                where={'id': user_id},
+                data=update_data
+            )
+            
+            return {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': user.role,
+                'is_active': user.is_active,
+                'updated_at': user.updated_at.isoformat() if user.updated_at else None
+            }
+        
+        try:
+            user_data = run_in_background(update_user())
+            return jsonify(user_data)
+        except Exception as e:
+            print(f"Error updating user: {e}")
+            return jsonify({'error': str(e)}), 400
+    
+    elif request.method == 'DELETE':
+        async def delete_user():
+            if not db.is_connected():
+                await db.connect()
+            
+            await db.user.delete(where={'id': user_id})
+            return True
+        
+        try:
+            run_in_background(delete_user())
+            return jsonify({'message': 'User deleted successfully'})
+        except Exception as e:
+            print(f"Error deleting user: {e}")
+            return jsonify({'error': str(e)}), 400
 
 
 @server.route('/api/analytics')
@@ -396,6 +567,115 @@ def get_analytics():
 #     ],
 #     suppress_callback_exceptions=True
 # )
+
+@server.route('/dashboard/notification-management')
+@login_required
+def notification_management_page():
+    """Render notification management page"""
+    return render_template('notification_management.html')
+
+
+@server.route('/api/notification-config', methods=['GET', 'POST'])
+@login_required
+def notification_config():
+    """API endpoint to get or update notification configuration"""
+    if request.method == 'GET':
+        # TODO: Fetch from database
+        config = {
+            'trigger_condition': 'severity-medium',
+            'fallback_channel': 'sms',
+            'language_priority': ['en', 'es', 'ar']
+        }
+        return jsonify(config)
+    
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            # TODO: Save to database
+            print(f"Saving notification config: {data}")
+            return jsonify({'success': True, 'message': 'Configuration saved successfully'})
+        except Exception as e:
+            print(f"Error saving notification config: {e}")
+            return jsonify({'error': str(e)}), 500
+
+
+@server.route('/api/notification-template', methods=['GET', 'POST'])
+@login_required
+def notification_template():
+    """API endpoint to get or save notification templates"""
+    if request.method == 'GET':
+        template_name = request.args.get('template_name', 'collision-alert')
+        # TODO: Fetch from database
+        templates = {
+            'collision-alert': '🚨 URGENT: Collision detected at {location}\n\nSeverity: {severity}\nTime: {timestamp}',
+            'fire-detected': '🔥 FIRE ALERT: Fire detected at {location}',
+            'medical-emergency': '🚑 MEDICAL EMERGENCY at {location}'
+        }
+        return jsonify({'template': templates.get(template_name, '')})
+    
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            # TODO: Save to database
+            print(f"Saving notification template: {data['template_name']}")
+            return jsonify({'success': True, 'message': 'Template saved successfully'})
+        except Exception as e:
+            print(f"Error saving notification template: {e}")
+            return jsonify({'error': str(e)}), 500
+
+
+@server.route('/api/notification-test', methods=['POST'])
+@login_required
+def notification_test():
+    """API endpoint to send test notification"""
+    try:
+        data = request.json
+        content = data.get('content', '')
+        # TODO: Send actual test notification
+        print(f"Sending test notification: {content[:100]}...")
+        return jsonify({'success': True, 'message': 'Test notification sent successfully'})
+    except Exception as e:
+        print(f"Error sending test notification: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@server.route('/dashboard/settings')
+@login_required
+def settings_page():
+    """Render settings/preferences page"""
+    return render_template('settings.html')
+
+
+@server.route('/api/settings', methods=['GET', 'POST'])
+@login_required
+def user_settings():
+    """API endpoint to get or update user settings"""
+    if request.method == 'GET':
+        # TODO: Fetch from database based on current_user.id
+        default_settings = {
+            'ui_language': 'en',
+            'notification_language': 'en',
+            'enable_notifications': True,
+            'auto_logout_time': 15,
+            'auto_logout_inactivity': False,
+            'time_zone': 'UTC+08:00',
+            'map_provider': 'openstreetmap',
+            'dark_mode': False,
+            'notification_channels': ['telegram', 'sms']
+        }
+        return jsonify({'settings': default_settings})
+    
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            # TODO: Save to database for current_user.id
+            print(f"Saving user settings for user: {current_user.username}")
+            print(f"Settings: {data}")
+            return jsonify({'success': True, 'message': 'Settings saved successfully'})
+        except Exception as e:
+            print(f"Error saving user settings: {e}")
+            return jsonify({'error': str(e)}), 500
+
 
 # ALL DASH CODE BELOW IS DISABLED - USING NEW HTML TEMPLATES INSTEAD
 # The old Dash layout and callbacks are kept for reference but commented out
