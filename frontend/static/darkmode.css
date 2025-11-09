@@ -667,3 +667,177 @@ body.dark-mode .page-subtitle {
     color: var(--dark-text-muted) !important;
 }
 
+
+/* Notification Management Page Specific Overrides */
+body.dark-mode .alert-warning {
+    background: #854d0e !important;
+    border: 2px solid #ca8a04 !important;
+    color: #fef3c7 !important;
+}
+
+body.dark-mode .alert-warning i {
+    color: #fbbf24 !important;
+}
+
+body.dark-mode .config-card,
+body.dark-mode .template-card {
+    background: var(--dark-card-bg) !important;
+    border: 2px solid var(--dark-border) !important;
+}
+
+body.dark-mode .card-header-custom h3,
+body.dark-mode .section-title {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Severity and Channel Select Boxes */
+body.dark-mode select[id*="severity"],
+body.dark-mode select[id*="channel"],
+body.dark-mode .severity-select,
+body.dark-mode .channel-select,
+body.dark-mode .form-select {
+    background: var(--dark-input-bg) !important;
+    color: var(--dark-text-primary) !important;
+    border: 2px solid var(--dark-border) !important;
+}
+
+body.dark-mode select option {
+    background: var(--dark-input-bg) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Language List and Items */
+body.dark-mode .language-list {
+    background: var(--dark-input-bg) !important;
+    border: 2px solid var(--dark-border) !important;
+}
+
+body.dark-mode .language-item {
+    background: var(--dark-bg-secondary) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-mode .language-item:hover {
+    background: var(--dark-hover-bg) !important;
+}
+
+body.dark-mode .language-item.active {
+    background: #1e40af !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .language-name {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-mode .language-code {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Add Language Button */
+body.dark-mode .add-language-btn {
+    background: var(--dark-input-bg) !important;
+    border: 2px dashed var(--dark-border) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+body.dark-mode .add-language-btn:hover {
+    background: var(--dark-hover-bg) !important;
+    border-color: #3b82f6 !important;
+    color: #3b82f6 !important;
+}
+
+/* Template Textareas */
+body.dark-mode .template-textarea,
+body.dark-mode textarea {
+    background: var(--dark-input-bg) !important;
+    color: var(--dark-text-primary) !important;
+    border: 2px solid var(--dark-border) !important;
+}
+
+body.dark-mode .template-textarea:focus,
+body.dark-mode textarea:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+}
+
+body.dark-mode .template-label {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-mode .char-count {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Collision Alert Section */
+body.dark-mode .alert-section {
+    background: var(--dark-card-bg) !important;
+}
+
+body.dark-mode .alert-header {
+    color: var(--dark-text-primary) !important;
+    background: var(--dark-bg-secondary) !important;
+}
+
+body.dark-mode .alert-preview {
+    background: var(--dark-input-bg) !important;
+    border: 2px solid var(--dark-border) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+body.dark-mode .preview-title {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-mode .preview-content {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Variable Tags */
+body.dark-mode .variable-tag {
+    background: #1e40af !important;
+    color: #ffffff !important;
+    border: 1px solid #3b82f6 !important;
+}
+
+/* Help Text and Small Text */
+body.dark-mode .help-text,
+body.dark-mode .form-text,
+body.dark-mode small {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Reset and Save Buttons */
+body.dark-mode .btn-reset {
+    background: var(--dark-bg-secondary) !important;
+    color: var(--dark-text-primary) !important;
+    border: 2px solid var(--dark-border) !important;
+}
+
+body.dark-mode .btn-reset:hover {
+    background: var(--dark-hover-bg) !important;
+}
+
+body.dark-mode .btn-save-config {
+    color: #ffffff !important;
+}
+
+/* Empty States */
+body.dark-mode .empty-language-state {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Config Section Headers */
+body.dark-mode .config-section h4,
+body.dark-mode .config-section h5 {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Label text within notification management */
+body.dark-mode .notification-management label,
+body.dark-mode .config-card label {
+    color: var(--dark-text-primary) !important;
+}
+
