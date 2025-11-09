@@ -14,6 +14,12 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='darkmode.css') }}">
+    
+    <!-- Dark Mode Script (load immediately) -->
+    <script src="{{ url_for('static', filename='darkmode.js') }}"></script>
+    
     <style>
         :root {
             --navy-blue: #1e3a8a;
@@ -244,31 +250,55 @@
         }
         
         .form-check-input[type="checkbox"] {
-            width: 3.5rem;
-            height: 1.75rem;
-            border-radius: 2rem;
+            width: 3.5rem !important;
+            height: 1.75rem !important;
+            border-radius: 2rem !important;
             cursor: pointer;
-            border: 2px solid var(--gray-300);
-            background-color: #e5e7eb;
+            border: 2px solid var(--gray-300) !important;
+            background-color: #cbd5e1 !important;
             transition: all 0.3s ease;
             position: relative;
             flex-shrink: 0;
+            background-image: none !important;
+            margin: 0 !important;
+        }
+        
+        .form-check-input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background-color: white;
+            top: 50%;
+            left: 0.15rem;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .form-check-input[type="checkbox"]:checked {
-            background-color: var(--green-success);
-            border-color: var(--green-success);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+            background-color: var(--green-success) !important;
+            border-color: var(--green-success) !important;
+        }
+        
+        .form-check-input[type="checkbox"]:checked::before {
+            left: calc(100% - 1.25rem - 0.15rem);
         }
         
         .form-check-input[type="checkbox"]:focus {
-            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15) !important;
             outline: none;
-            border-color: var(--green-success);
+            border-color: var(--green-success) !important;
         }
         
-        .form-check-input[type="checkbox"]:not(:checked) {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
+        .form-check-input[type="checkbox"]:hover {
+            border-color: var(--gray-400) !important;
+        }
+        
+        .form-check-input[type="checkbox"]:checked:hover {
+            background-color: #15803d !important;
+            border-color: #15803d !important;
         }
         
         .form-check-label {
@@ -277,6 +307,13 @@
             margin-left: 1rem;
             cursor: pointer;
             font-size: 0.95rem;
+            user-select: none;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
         }
         
         .text-muted {
@@ -826,17 +863,53 @@
     <script>
         // Load saved preferences on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // FIRST: Check and apply current dark mode state from localStorage
+            const savedPrefs = localStorage.getItem('userPreferences');
+            if (savedPrefs) {
+                const prefs = JSON.parse(savedPrefs);
+                // Set the toggle to match current state
+                document.getElementById('darkMode').checked = prefs.dark_mode === true;
+                // Apply dark mode if enabled
+                if (prefs.dark_mode === true) {
+                    applyDarkMode(true);
+                }
+            }
+            
+            // THEN: Load other preferences
             loadPreferences();
+            
+            // Add dark mode toggle listener - Save immediately when changed
+            document.getElementById('darkMode').addEventListener('change', function() {
+                const isEnabled = this.checked;
+                applyDarkMode(isEnabled);
+                
+                // Save to localStorage immediately
+                const savedPrefs = localStorage.getItem('userPreferences');
+                let prefs = savedPrefs ? JSON.parse(savedPrefs) : {};
+                prefs.dark_mode = isEnabled;
+                localStorage.setItem('userPreferences', JSON.stringify(prefs));
+                
+                // Trigger storage event for other tabs
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'userPreferences',
+                    newValue: JSON.stringify(prefs)
+                }));
+                
+                console.log('🎨 Dark mode ' + (isEnabled ? 'enabled' : 'disabled') + ' and saved');
+            });
         });
 
         // Load preferences from localStorage or API
         function loadPreferences() {
             try {
+                // Save current dark mode state before loading
+                const currentDarkMode = document.getElementById('darkMode').checked;
+                
                 // Try to load from localStorage first
                 const savedPrefs = localStorage.getItem('userPreferences');
                 if (savedPrefs) {
                     const prefs = JSON.parse(savedPrefs);
-                    applyPreferences(prefs);
+                    applyPreferences(prefs, true); // skipDarkMode = true
                 }
                 
                 // Then fetch from API
@@ -844,19 +917,22 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.settings) {
-                            applyPreferences(data.settings);
+                            applyPreferences(data.settings, true); // skipDarkMode = true
                         }
                     })
                     .catch(error => {
                         console.log('No saved preferences found, using defaults');
                     });
+                    
+                // Restore dark mode state after loading
+                document.getElementById('darkMode').checked = currentDarkMode;
             } catch (error) {
                 console.error('Error loading preferences:', error);
             }
         }
 
         // Apply preferences to form
-        function applyPreferences(prefs) {
+        function applyPreferences(prefs, skipDarkMode = false) {
             if (prefs.ui_language) document.getElementById('uiLanguage').value = prefs.ui_language;
             if (prefs.notification_language) document.getElementById('notificationLanguage').value = prefs.notification_language;
             if (prefs.enable_notifications !== undefined) document.getElementById('enableNotifications').checked = prefs.enable_notifications;
@@ -864,13 +940,31 @@
             if (prefs.auto_logout_inactivity !== undefined) document.getElementById('autoLogoutInactivity').checked = prefs.auto_logout_inactivity;
             if (prefs.time_zone) document.getElementById('timeZone').value = prefs.time_zone;
             if (prefs.map_provider) document.getElementById('mapProvider').value = prefs.map_provider;
-            if (prefs.dark_mode !== undefined) document.getElementById('darkMode').checked = prefs.dark_mode;
+            
+            // SKIP dark_mode handling - it's managed separately by localStorage only
+            if (!skipDarkMode && prefs.dark_mode !== undefined) {
+                document.getElementById('darkMode').checked = prefs.dark_mode;
+                applyDarkMode(prefs.dark_mode);
+            }
             
             // Load notification channels
             if (prefs.notification_channels && Array.isArray(prefs.notification_channels)) {
                 document.querySelectorAll('.multi-select-item input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = prefs.notification_channels.includes(checkbox.value);
                 });
+            }
+        }
+        
+        // Apply dark mode to the page
+        function applyDarkMode(enabled) {
+            if (enabled) {
+                document.documentElement.classList.add('dark-mode');
+                document.body.classList.add('dark-mode');
+                console.log('🌙 Dark Mode Enabled');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                document.body.classList.remove('dark-mode');
+                console.log('☀️ Light Mode Enabled');
             }
         }
 

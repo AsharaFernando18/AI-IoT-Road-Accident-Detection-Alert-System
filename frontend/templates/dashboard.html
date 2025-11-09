@@ -17,6 +17,12 @@
     <!-- Leaflet for Maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='darkmode.css') }}">
+    
+    <!-- Dark Mode Script (load immediately) -->
+    <script src="{{ url_for('static', filename='darkmode.js') }}"></script>
+    
     <style>
         :root {
             --navy-blue: #1e3a8a;
@@ -85,6 +91,93 @@
             border-radius: 2px;
         }
         
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            margin: 1.5rem 2rem 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+        
+        .dashboard-title-section h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--navy-blue);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .dashboard-title-section p {
+            margin: 0.15rem 0 0;
+            color: var(--gray-700);
+            font-size: 0.8rem;
+        }
+        
+        .time-display {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .time-label {
+            font-size: 0.65rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .time-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .current-time {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--navy-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        
+        .current-date {
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            white-space: nowrap;
+        }
+        
+        .time-icon {
+            color: var(--orange-warning);
+            font-size: 1rem;
+        }
+        
+        /* Navigation Time Display */
+        .nav-time-display .nav-link {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem !important;
+            font-family: 'Space Grotesk', monospace;
+            cursor: default;
+            pointer-events: none;
+        }
+        
+        .nav-time-display .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
         /* Main Dashboard Container */
         .dashboard-container {
             padding: 2rem;
@@ -96,7 +189,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            margin-top: 1.5rem;
+            margin-top: 0.5rem;
         }
         
         .top-row {
@@ -466,6 +559,28 @@
                 padding: 1rem;
             }
             
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.25rem;
+                margin: 1rem;
+            }
+            
+            .dashboard-title-section h1 {
+                font-size: 1.35rem;
+                justify-content: center;
+            }
+            
+            .time-display {
+                text-align: center;
+                margin-top: 1rem;
+            }
+            
+            .current-time {
+                justify-content: center;
+                font-size: 1.35rem;
+            }
+            
             .map-container,
             .video-container {
                 height: 300px;
@@ -518,6 +633,14 @@
                         <a class="nav-link" href="/dashboard/settings">
                             <i class="fas fa-sliders-h me-1"></i>Settings
                         </a>
+                    </li>
+                    <li class="nav-item nav-time-display">
+                        <span class="nav-link">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="malaysian-time-nav" style="font-weight: 500;">--:--:--</span>
+                            <span class="mx-1">|</span>
+                            <span id="malaysian-date-nav" style="font-size: 0.85rem; opacity: 0.9;">Loading...</span>
+                        </span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
@@ -663,6 +786,39 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
+        // Update Malaysian Time in Navigation Bar
+        function updateMalaysianTime() {
+            const now = new Date();
+            
+            // Convert to Malaysian Time (GMT+8)
+            const malaysianTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
+            
+            // Format time (HH:MM:SS)
+            const hours = malaysianTime.getHours().toString().padStart(2, '0');
+            const minutes = malaysianTime.getMinutes().toString().padStart(2, '0');
+            const seconds = malaysianTime.getSeconds().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // Format date (short version for navbar)
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: 'Asia/Kuala_Lumpur'
+            };
+            const dateString = malaysianTime.toLocaleDateString('en-MY', options);
+            
+            // Update navbar time display
+            const timeNav = document.getElementById('malaysian-time-nav');
+            const dateNav = document.getElementById('malaysian-date-nav');
+            if (timeNav) timeNav.textContent = timeString;
+            if (dateNav) dateNav.textContent = dateString;
+        }
+        
+        // Update time immediately and then every second
+        updateMalaysianTime();
+        setInterval(updateMalaysianTime, 1000);
+        
         // Initialize Map
         let map = L.map('map').setView([3.139, 101.6869], 12); // Kuala Lumpur coordinates
         
@@ -689,15 +845,57 @@
             { lat: 3.0669, lng: 101.5030, id: '#1003', severity: 'critical', type: 'accident' }
         ];
         
-        // Emergency services locations
-        const emergencyServices = [
-            { lat: 3.1466, lng: 101.6958, name: 'Kuala Lumpur General Hospital', type: 'hospital', emoji: '🏥' },
+        // Hospitals in Kuala Lumpur
+        const hospitals = [
+            { lat: 3.1466, lng: 101.6958, name: 'Hospital Kuala Lumpur', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1216, lng: 101.6554, name: 'Hospital Tung Shin', type: 'hospital', emoji: '🏥' },
             { lat: 3.1535, lng: 101.7000, name: 'University Malaya Medical Centre', type: 'hospital', emoji: '🏥' },
-            { lat: 3.1200, lng: 101.6500, name: 'Police Station - Sentul', type: 'police', emoji: '🚔' },
-            { lat: 3.1650, lng: 101.7100, name: 'Police Station - KLCC', type: 'police', emoji: '🚔' },
-            { lat: 3.1100, lng: 101.6400, name: 'Ambulance Station - Central', type: 'ambulance', emoji: '🚑' },
-            { lat: 3.1300, lng: 101.6700, name: 'Ambulance Station - North', type: 'ambulance', emoji: '🚑' }
+            { lat: 3.2032, lng: 101.7267, name: 'Hospital Ampang Puteri', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0883, lng: 101.6808, name: 'Hospital Pantai Bangsar', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1738, lng: 101.7134, name: 'Hospital Gleneagles KL', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0489, lng: 101.5931, name: 'Hospital Serdang', type: 'hospital', emoji: '🏥' },
+            { lat: 3.2157, lng: 101.7263, name: 'Columbia Asia Hospital', type: 'hospital', emoji: '🏥' }
         ];
+        
+        // Real Police Stations in Malaysia (Kuala Lumpur & Selangor)
+        const policeStations = [
+            // Kuala Lumpur Police Stations
+            { lat: 3.1419, lng: 101.6935, name: 'IPD Dang Wangi (Police HQ)', type: 'police', emoji: '👮' },
+            { lat: 3.1850, lng: 101.6783, name: 'Balai Polis Sentul', type: 'police', emoji: '👮' },
+            { lat: 3.1583, lng: 101.7119, name: 'Balai Polis KLCC', type: 'police', emoji: '👮' },
+            { lat: 3.1328, lng: 101.6810, name: 'Balai Polis Chow Kit', type: 'police', emoji: '👮' },
+            { lat: 3.1050, lng: 101.6750, name: 'Balai Polis Brickfields', type: 'police', emoji: '👮' },
+            { lat: 3.0911, lng: 101.7044, name: 'Balai Polis Pudu', type: 'police', emoji: '👮' },
+            { lat: 3.1120, lng: 101.6280, name: 'Balai Polis Bangsar', type: 'police', emoji: '👮' },
+            { lat: 3.1477, lng: 101.7389, name: 'IPD Ampang Jaya', type: 'police', emoji: '👮' },
+            { lat: 3.0738, lng: 101.6017, name: 'Balai Polis Setia Alam', type: 'police', emoji: '👮' },
+            { lat: 3.1267, lng: 101.6419, name: 'Balai Polis Tun H.S. Lee', type: 'police', emoji: '👮' },
+            { lat: 3.1544, lng: 101.6586, name: 'Balai Polis Titiwangsa', type: 'police', emoji: '👮' },
+            { lat: 3.0644, lng: 101.5264, name: 'IPD Petaling Jaya', type: 'police', emoji: '👮' },
+            { lat: 3.0228, lng: 101.5317, name: 'Balai Polis Subang Jaya', type: 'police', emoji: '👮' },
+            { lat: 3.0481, lng: 101.5978, name: 'Balai Polis Serdang', type: 'police', emoji: '👮' },
+            { lat: 2.9917, lng: 101.7972, name: 'IPD Kajang', type: 'police', emoji: '👮' },
+            { lat: 3.2192, lng: 101.7289, name: 'Balai Polis Wangsa Maju', type: 'police', emoji: '👮' },
+            { lat: 3.0328, lng: 101.6494, name: 'Balai Polis Bukit Jalil', type: 'police', emoji: '👮' },
+            { lat: 3.2611, lng: 101.6906, name: 'IPD Gombak', type: 'police', emoji: '👮' },
+            { lat: 2.7297, lng: 101.9381, name: 'IPD Sepang', type: 'police', emoji: '👮' },
+            { lat: 3.3083, lng: 101.5500, name: 'IPD Sungai Buloh', type: 'police', emoji: '👮' }
+        ];
+        
+        // Mobile Ambulances (stationary - fake locations)
+        const mobileAmbulances = [
+            { lat: 3.1500, lng: 101.6800, id: 'AMB-001', status: 'Available', location: 'KLCC Area', emoji: '🚑' },
+            { lat: 3.1100, lng: 101.7000, id: 'AMB-002', status: 'Available', location: 'Cheras Area', emoji: '🚑' },
+            { lat: 3.0900, lng: 101.6600, id: 'AMB-003', status: 'On Standby', location: 'Bangsar Area', emoji: '🚑' },
+            { lat: 3.1700, lng: 101.7200, id: 'AMB-004', status: 'Available', location: 'Ampang Area', emoji: '🚑' },
+            { lat: 3.1300, lng: 101.6500, id: 'AMB-005', status: 'On Standby', location: 'Bukit Bintang Area', emoji: '🚑' },
+            { lat: 3.2000, lng: 101.7100, id: 'AMB-006', status: 'Available', location: 'Wangsa Maju Area', emoji: '🚑' },
+            { lat: 3.0650, lng: 101.5950, id: 'AMB-007', status: 'Available', location: 'Serdang Area', emoji: '🚑' },
+            { lat: 3.0400, lng: 101.5250, id: 'AMB-008', status: 'On Standby', location: 'Petaling Jaya Area', emoji: '🚑' }
+        ];
+        
+        // Combine all emergency services
+        const emergencyServices = [...hospitals, ...policeStations];
         
         // Add accident markers to map
         incidents.forEach(incident => {
@@ -719,12 +917,11 @@
             `);
         });
         
-        // Add emergency service markers
+        // Add emergency service markers (hospitals and police stations)
         emergencyServices.forEach(service => {
             let bgColor = '#ffffff';
             if (service.type === 'hospital') bgColor = '#fee2e2'; // light red
             if (service.type === 'police') bgColor = '#dbeafe';   // light blue
-            if (service.type === 'ambulance') bgColor = '#fef3c7'; // light yellow
             
             const serviceIcon = createEmojiIcon(service.emoji, bgColor);
             
@@ -736,6 +933,27 @@
                 <div style="font-family: 'Inter', sans-serif;">
                     <b>${service.emoji} ${service.name}</b><br>
                     <span style="text-transform: capitalize; color: #6b7280;">${service.type}</span>
+                </div>
+            `);
+        });
+        
+        // Add mobile ambulance markers (stationary)
+        mobileAmbulances.forEach(ambulance => {
+            // Different colors based on status
+            let bgColor = '#dcfce7'; // light green - available
+            if (ambulance.status === 'On Standby') bgColor = '#fef3c7'; // yellow - on standby
+            
+            const ambulanceIcon = createEmojiIcon(ambulance.emoji, bgColor);
+            
+            const marker = L.marker([ambulance.lat, ambulance.lng], {
+                icon: ambulanceIcon
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="font-family: 'Inter', sans-serif;">
+                    <b>🚑 Mobile Ambulance ${ambulance.id}</b><br>
+                    <span style="color: #059669;"><strong>Status:</strong> ${ambulance.status}</span><br>
+                    <span style="color: #6b7280;"><strong>Location:</strong> ${ambulance.location}</span>
                 </div>
             `);
         });
