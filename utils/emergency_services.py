@@ -9,7 +9,9 @@ import random
 from typing import Dict, List, Optional, Tuple
 from math import radians, sin, cos, sqrt, atan2
 from config import Config
-from utils.logger import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EmergencyServicesLocator:
@@ -294,3 +296,55 @@ class EmergencyServicesLocator:
     ) -> str:
         """Generate Google Maps route link from one location to another"""
         return f"https://www.google.com/maps/dir/{from_lat},{from_lon}/{to_lat},{to_lon}"
+
+
+# Singleton instance
+_emergency_locator = None
+
+def get_emergency_locator():
+    """Get singleton instance of EmergencyServicesLocator"""
+    global _emergency_locator
+    if _emergency_locator is None:
+        _emergency_locator = EmergencyServicesLocator()
+    return _emergency_locator
+
+
+def find_nearest_services(lat: float, lon: float) -> Dict:
+    """
+    Simple wrapper function to find nearest emergency services
+    Returns dict with nearest hospital, police, and ambulance
+    """
+    locator = get_emergency_locator()
+    services = locator.find_nearest_emergency_services(lat, lon)
+    
+    result = {}
+    
+    if services['hospitals']:
+        nearest_hospital = services['hospitals'][0]
+        result['hospital'] = {
+            'name': nearest_hospital['name'],
+            'distance': nearest_hospital['distance_km'],
+            'lat': nearest_hospital['latitude'],
+            'lon': nearest_hospital['longitude']
+        }
+    
+    if services['police_stations']:
+        nearest_police = services['police_stations'][0]
+        result['police'] = {
+            'name': nearest_police['name'],
+            'distance': nearest_police['distance_km'],
+            'lat': nearest_police['latitude'],
+            'lon': nearest_police['longitude']
+        }
+    
+    if services['ambulances']:
+        nearest_ambulance = services['ambulances'][0]
+        result['ambulance'] = {
+            'name': nearest_ambulance['name'],
+            'id': nearest_ambulance.get('name', 'AMB-001'),
+            'distance': nearest_ambulance['distance_km'],
+            'lat': nearest_ambulance['latitude'],
+            'lon': nearest_ambulance['longitude']
+        }
+    
+    return result

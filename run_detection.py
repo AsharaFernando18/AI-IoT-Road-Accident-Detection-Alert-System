@@ -14,6 +14,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from ai_model.detector import AccidentDetector
 from prisma import Prisma
+from utils.telegram_notifications import notify_nearest_responders
 
 # Configure logging
 logging.basicConfig(
@@ -86,20 +87,58 @@ async def detect_accidents_in_video(video_path: str):
                 
                 # Save detection to database
                 try:
-                    incident = await db.incident.create(
+                    # Use KLCC coordinates (where demo users are located)
+                    accident_lat = 3.1578  # KLCC area
+                    accident_lon = 101.7123
+                    
+                    accident = await db.accident.create(
                         data={
                             'location': f'CCTV Video - Frame {frame_count}',
-                            'location_lat': 3.139,  # Default Kuala Lumpur coordinates
-                            'location_lon': 101.6869,
+                            'latitude': accident_lat,
+                            'longitude': accident_lon,
+                            'city': 'Kuala Lumpur',
                             'severity': 'high' if result['confidence'] > 0.8 else 'medium',
                             'description': f'Accident detected in CCTV footage at {timestamp:.2f}s',
-                            'status': 'active',
-                            'confidence': result['confidence']
+                            'status': 'pending',
+                            'timestamp': datetime.now()
                         }
                     )
-                    logger.info(f"   ✓ Incident #{incident.id} saved to database")
+                    logger.info(f"   ✓ Accident #{accident.id} saved to database")
+                    
+                    # Send notifications to nearest responders
+                    try:
+                        accident_data = {
+                            'latitude': accident_lat,
+                            'longitude': accident_lon,
+                            'severity': accident.severity,
+                            'location': accident.location,
+                            'city': accident.city,
+                            'timestamp': accident.timestamp.isoformat(),
+                            'description': accident.description
+                        }
+                        
+                        notification_results = notify_nearest_responders(accident_data, limit_per_type=3)
+                        
+                        # Count successful notifications
+                        total_sent = sum(
+                            sum(1 for r in results if r['notified'])
+                            for results in notification_results.values()
+                        )
+                        
+                        logger.info(f"   🚨 Notifications sent to {total_sent} responders")
+                        
+                        for resp_type, results in notification_results.items():
+                            for result in results:
+                                if result['notified']:
+                                    logger.info(f"      ✅ {result['username']} ({resp_type}) - {result['distance_km']:.2f} km")
+                                else:
+                                    logger.warning(f"      ❌ {result['username']} ({resp_type}) - {result.get('error', 'Unknown error')}")
+                    
+                    except Exception as e:
+                        logger.error(f"   ✗ Failed to send notifications: {e}")
+                        
                 except Exception as e:
-                    logger.error(f"   ✗ Failed to save incident: {e}")
+                    logger.error(f"   ✗ Failed to save accident: {e}")
             
             # Progress update every 100 frames
             if frame_count % 100 == 0:

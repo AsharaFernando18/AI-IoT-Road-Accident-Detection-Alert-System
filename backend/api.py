@@ -22,6 +22,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from config import Config
 from prisma import Prisma
 import logging
+from utils.telegram_notifications import notify_nearest_responders
 
 # Configure logging
 logging.basicConfig(
@@ -266,7 +267,7 @@ async def create_accident(
     accident: AccidentCreate,
     current_user = Depends(get_current_user)
 ):
-    """Create new accident record"""
+    """Create new accident record and send notifications"""
     new_accident = await db.accident.create(data=accident.dict())
     
     # Log action
@@ -278,6 +279,27 @@ async def create_accident(
             "user_id": current_user.id
         }
     )
+    
+    # Send notifications to nearest responders
+    try:
+        accident_data = {
+            'latitude': new_accident.latitude,
+            'longitude': new_accident.longitude,
+            'severity': new_accident.severity,
+            'location': new_accident.location,
+            'city': new_accident.city,
+            'timestamp': new_accident.timestamp.isoformat() if new_accident.timestamp else datetime.now().isoformat(),
+            'description': new_accident.description
+        }
+        
+        notification_results = notify_nearest_responders(accident_data, limit_per_type=3)
+        
+        logger.info(f"🚨 Notifications sent for accident {new_accident.id}")
+        logger.info(f"Results: {notification_results}")
+        
+    except Exception as e:
+        logger.error(f"Error sending notifications for accident {new_accident.id}: {e}")
+        # Don't fail the accident creation if notifications fail
     
     return new_accident
 

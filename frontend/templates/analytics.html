@@ -17,6 +17,10 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
     <!-- Dark Mode CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='darkmode.css') }}">
     
@@ -64,6 +68,20 @@
         
         .nav-link:hover, .nav-link.active {
             color: white !important;
+        }
+        
+        /* Navigation Time Display */
+        .nav-time-display .nav-link {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem !important;
+            font-family: 'Space Grotesk', monospace;
+            cursor: default;
+            pointer-events: none;
+        }
+        
+        .nav-time-display .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .container-main {
@@ -186,6 +204,7 @@
                             <i class="fas fa-bell me-1"></i>Notifications
                         </a>
                     </li>
+                    {% if user_role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/users">
                             <i class="fas fa-users me-1"></i>Users
@@ -196,10 +215,19 @@
                             <i class="fas fa-bell-concierge me-1"></i>Notification Config
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/settings">
                             <i class="fas fa-sliders-h me-1"></i>Settings
                         </a>
+                    </li>
+                    <li class="nav-item nav-time-display">
+                        <span class="nav-link">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="malaysian-time-nav" style="font-weight: 500;">--:--:--</span>
+                            <span class="mx-1">|</span>
+                            <span id="malaysian-date-nav" style="font-size: 0.85rem; opacity: 0.9;">Loading...</span>
+                        </span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
@@ -247,11 +275,21 @@
 
     <!-- Main Content -->
     <div class="container-main">
-        <div class="page-header">
-            <h1 class="page-title">
-                <i class="fas fa-chart-line me-3"></i>Analytics Dashboard
-            </h1>
-            <p class="text-muted">Comprehensive accident detection analytics and insights</p>
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-chart-line me-3"></i>Analytics Dashboard
+                </h1>
+                <p class="text-muted mb-0">Comprehensive accident detection analytics and insights</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success" onclick="exportCSV()" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem;">
+                    <i class="fas fa-file-csv me-2"></i>Export CSV
+                </button>
+                <button class="btn btn-danger" onclick="exportPDF()" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem;">
+                    <i class="fas fa-file-pdf me-2"></i>Export PDF
+                </button>
+            </div>
         </div>
 
         <!-- Statistics Cards -->
@@ -301,15 +339,17 @@
                     <h3 class="chart-title">
                         <i class="fas fa-calendar-alt me-2"></i>Incidents Over Time (Last 30 Days)
                     </h3>
-                    <canvas id="timelineChart" height="80"></canvas>
+                    <canvas id="timelineChart" height="100"></canvas>
                 </div>
             </div>
             <div class="col-lg-4 mb-4">
-                <div class="chart-card">
+                <div class="chart-card" style="height: 100%;">
                     <h3 class="chart-title">
                         <i class="fas fa-chart-pie me-2"></i>Severity Distribution
                     </h3>
-                    <canvas id="severityChart"></canvas>
+                    <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="severityChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -339,6 +379,39 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Malaysian Time Display
+        function updateMalaysianTime() {
+            const now = new Date();
+            
+            // Convert to Malaysian Time (GMT+8)
+            const malaysianTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
+            
+            // Format time (HH:MM:SS)
+            const hours = malaysianTime.getHours().toString().padStart(2, '0');
+            const minutes = malaysianTime.getMinutes().toString().padStart(2, '0');
+            const seconds = malaysianTime.getSeconds().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // Format date (short version for navbar)
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: 'Asia/Kuala_Lumpur'
+            };
+            const dateString = malaysianTime.toLocaleDateString('en-MY', options);
+            
+            // Update navbar time display
+            const timeNav = document.getElementById('malaysian-time-nav');
+            const dateNav = document.getElementById('malaysian-date-nav');
+            if (timeNav) timeNav.textContent = timeString;
+            if (dateNav) dateNav.textContent = dateString;
+        }
+        
+        // Update time immediately and then every second
+        updateMalaysianTime();
+        setInterval(updateMalaysianTime, 1000);
+        
         // Fetch analytics data
         async function loadAnalytics() {
             try {
@@ -436,7 +509,7 @@
         function createLocationChart(data) {
             const ctx = document.getElementById('locationChart').getContext('2d');
             new Chart(ctx, {
-                type: 'horizontalBar',
+                type: 'bar',
                 data: {
                     labels: data.map(d => d.location) || [],
                     datasets: [{
@@ -446,13 +519,277 @@
                     }]
                 },
                 options: {
-                    responsive: true,
                     indexAxis: 'y',
+                    responsive: true,
                     plugins: {
                         legend: { display: false }
                     }
                 }
             });
+        }
+
+        // Store analytics data globally for export
+        let analyticsData = {
+            stats: {},
+            timeline: [],
+            severity: {},
+            hourly: [],
+            locations: []
+        };
+
+        // Fetch analytics data and update UI
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics');
+                const data = await response.json();
+                
+                console.log('Analytics data received:', data);
+                
+                // Store data globally for export
+                analyticsData = {
+                    stats: {
+                        total: data.stats?.total || 0,
+                        week: data.stats?.week || 0,
+                        critical: data.stats?.critical || 0,
+                        resolved: data.stats?.resolved || 0
+                    },
+                    timeline: data.timeline || [],
+                    severity: data.severity || {
+                        critical: 0,
+                        high: 0,
+                        medium: 0,
+                        low: 0
+                    },
+                    hourly: data.hourly || Array(24).fill(0),
+                    locations: data.locations || []
+                };
+
+                // Update UI
+                document.getElementById('total-incidents').textContent = analyticsData.stats.total;
+                document.getElementById('week-incidents').textContent = analyticsData.stats.week;
+                document.getElementById('critical-incidents').textContent = analyticsData.stats.critical;
+                document.getElementById('resolved-incidents').textContent = analyticsData.stats.resolved;
+
+                // Create charts
+                createTimelineChart(analyticsData.timeline);
+                createSeverityChart(analyticsData.severity);
+                createHourlyChart(analyticsData.hourly);
+                createLocationChart(analyticsData.locations);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Export to CSV
+        function exportCSV() {
+            const timestamp = new Date().toISOString().split('T')[0];
+            let csvContent = "RoadSafeNet Analytics Report\n";
+            csvContent += `Generated on: ${new Date().toLocaleString()}\n\n`;
+            
+            // Statistics
+            csvContent += "SUMMARY STATISTICS\n";
+            csvContent += "Metric,Value\n";
+            csvContent += `Total Incidents,${analyticsData.stats.total}\n`;
+            csvContent += `This Week,${analyticsData.stats.week}\n`;
+            csvContent += `Critical Alerts,${analyticsData.stats.critical}\n`;
+            csvContent += `Resolved,${analyticsData.stats.resolved}\n\n`;
+            
+            // Severity Distribution
+            csvContent += "SEVERITY DISTRIBUTION\n";
+            csvContent += "Severity,Count\n";
+            csvContent += `Critical,${analyticsData.severity.critical}\n`;
+            csvContent += `High,${analyticsData.severity.high}\n`;
+            csvContent += `Medium,${analyticsData.severity.medium}\n`;
+            csvContent += `Low,${analyticsData.severity.low}\n\n`;
+            
+            // Timeline
+            csvContent += "INCIDENT TIMELINE\n";
+            csvContent += "Date,Count\n";
+            analyticsData.timeline.forEach(item => {
+                csvContent += `${item.date},${item.count}\n`;
+            });
+            csvContent += "\n";
+            
+            // Top Locations
+            csvContent += "TOP INCIDENT LOCATIONS\n";
+            csvContent += "Location,Count\n";
+            analyticsData.locations.forEach(item => {
+                csvContent += `${item.location},${item.count}\n`;
+            });
+            
+            // Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `RoadSafeNet_Analytics_${timestamp}.csv`;
+            link.click();
+            
+            showToast('✅ CSV report exported successfully!', 'success', 3000);
+        }
+
+        // Export to PDF with Logo
+        async function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const timestamp = new Date().toLocaleString();
+            const filename = `RoadSafeNet_Analytics_${new Date().toISOString().split('T')[0]}.pdf`;
+            
+            // Add Logo (base64 encoded - we'll load from the logo image)
+            try {
+                const logoImg = new Image();
+                logoImg.src = "{{ url_for('static', filename='images/logo.png') }}";
+                await new Promise((resolve) => {
+                    logoImg.onload = resolve;
+                    logoImg.onerror = () => resolve(); // Continue even if logo fails
+                });
+                
+                // Add logo if loaded successfully
+                if (logoImg.complete && logoImg.naturalHeight !== 0) {
+                    doc.addImage(logoImg, 'PNG', 15, 10, 30, 30);
+                }
+            } catch (error) {
+                console.log('Logo loading skipped:', error);
+            }
+            
+            // Header
+            doc.setFontSize(24);
+            doc.setTextColor(30, 58, 138);
+            doc.text('RoadSafeNet', 50, 25);
+            
+            doc.setFontSize(18);
+            doc.text('Analytics Report', 50, 35);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated: ${timestamp}`, 50, 42);
+            
+            // Line separator
+            doc.setDrawColor(30, 58, 138);
+            doc.setLineWidth(0.5);
+            doc.line(15, 48, 195, 48);
+            
+            let yPos = 58;
+            
+            // Summary Statistics
+            doc.setFontSize(14);
+            doc.setTextColor(30, 58, 138);
+            doc.text('Summary Statistics', 15, yPos);
+            yPos += 8;
+            
+            doc.autoTable({
+                startY: yPos,
+                head: [['Metric', 'Value']],
+                body: [
+                    ['Total Incidents', analyticsData.stats.total.toString()],
+                    ['This Week', analyticsData.stats.week.toString()],
+                    ['Critical Alerts', analyticsData.stats.critical.toString()],
+                    ['Resolved', analyticsData.stats.resolved.toString()]
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [30, 58, 138], textColor: 255 },
+                margin: { left: 15, right: 15 }
+            });
+            
+            yPos = doc.lastAutoTable.finalY + 15;
+            
+            // Severity Distribution
+            doc.setFontSize(14);
+            doc.setTextColor(30, 58, 138);
+            doc.text('Severity Distribution', 15, yPos);
+            yPos += 8;
+            
+            doc.autoTable({
+                startY: yPos,
+                head: [['Severity Level', 'Count']],
+                body: [
+                    ['Critical', analyticsData.severity.critical.toString()],
+                    ['High', analyticsData.severity.high.toString()],
+                    ['Medium', analyticsData.severity.medium.toString()],
+                    ['Low', analyticsData.severity.low.toString()]
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [30, 58, 138], textColor: 255 },
+                margin: { left: 15, right: 15 }
+            });
+            
+            yPos = doc.lastAutoTable.finalY + 15;
+            
+            // Check if new page needed
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            // Top Locations
+            doc.setFontSize(14);
+            doc.setTextColor(30, 58, 138);
+            doc.text('Top Incident Locations', 15, yPos);
+            yPos += 8;
+            
+            const locationData = analyticsData.locations.slice(0, 10).map(item => [
+                item.location,
+                item.count.toString()
+            ]);
+            
+            doc.autoTable({
+                startY: yPos,
+                head: [['Location', 'Incidents']],
+                body: locationData.length > 0 ? locationData : [['No data available', '-']],
+                theme: 'grid',
+                headStyles: { fillColor: [30, 58, 138], textColor: 255 },
+                margin: { left: 15, right: 15 }
+            });
+            
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(
+                    `Page ${i} of ${pageCount}`,
+                    doc.internal.pageSize.width / 2,
+                    doc.internal.pageSize.height - 10,
+                    { align: 'center' }
+                );
+                doc.text(
+                    'RoadSafeNet © 2025 - AI-Powered Road Safety System',
+                    15,
+                    doc.internal.pageSize.height - 10
+                );
+            }
+            
+            // Save PDF
+            doc.save(filename);
+            
+            showToast('✅ PDF report exported successfully!', 'success', 3000);
+        }
+
+        // Toast notification function
+        function showToast(message, type, duration) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${type === 'success' ? '#16a34a' : '#dc2626'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-family: 'Inter', sans-serif;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
         }
 
         // Load data on page load

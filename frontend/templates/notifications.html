@@ -63,6 +63,20 @@
             color: white !important;
         }
         
+        /* Navigation Time Display */
+        .nav-time-display .nav-link {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem !important;
+            font-family: 'Space Grotesk', monospace;
+            cursor: default;
+            pointer-events: none;
+        }
+        
+        .nav-time-display .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
         .container-main {
             padding: 2rem;
             max-width: 1200px;
@@ -277,6 +291,7 @@
                             <i class="fas fa-bell me-1"></i>Notifications
                         </a>
                     </li>
+                    {% if user_role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/users">
                             <i class="fas fa-users me-1"></i>Users
@@ -287,10 +302,19 @@
                             <i class="fas fa-bell-concierge me-1"></i>Notification Config
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/settings">
                             <i class="fas fa-sliders-h me-1"></i>Settings
                         </a>
+                    </li>
+                    <li class="nav-item nav-time-display">
+                        <span class="nav-link">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="malaysian-time-nav" style="font-weight: 500;">--:--:--</span>
+                            <span class="mx-1">|</span>
+                            <span id="malaysian-date-nav" style="font-size: 0.85rem; opacity: 0.9;">Loading...</span>
+                        </span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
@@ -410,6 +434,39 @@
                 date: '2025-10-26'
             }
         ];
+
+        // Malaysian Time Display
+        function updateMalaysianTime() {
+            const now = new Date();
+            
+            // Convert to Malaysian Time (GMT+8)
+            const malaysianTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
+            
+            // Format time (HH:MM:SS)
+            const hours = malaysianTime.getHours().toString().padStart(2, '0');
+            const minutes = malaysianTime.getMinutes().toString().padStart(2, '0');
+            const seconds = malaysianTime.getSeconds().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // Format date (short version for navbar)
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: 'Asia/Kuala_Lumpur'
+            };
+            const dateString = malaysianTime.toLocaleDateString('en-MY', options);
+            
+            // Update navbar time display
+            const timeNav = document.getElementById('malaysian-time-nav');
+            const dateNav = document.getElementById('malaysian-date-nav');
+            if (timeNav) timeNav.textContent = timeString;
+            if (dateNav) dateNav.textContent = dateString;
+        }
+        
+        // Update time immediately and then every second
+        updateMalaysianTime();
+        setInterval(updateMalaysianTime, 1000);
 
         // Load notifications
         async function loadNotifications() {

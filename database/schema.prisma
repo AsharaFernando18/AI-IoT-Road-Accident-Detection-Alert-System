@@ -9,15 +9,25 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  email        String   @unique
-  password_hash String
-  full_name    String?
-  role         String   @default("viewer")  // admin, operator, viewer
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  email             String   @unique
+  password_hash     String
+  full_name         String?
+  role              String   @default("viewer")  // admin, operator, viewer
+  phone             String?
+  address           String?
+  city              String?
+  state             String?
+  country           String?
+  postal_code       String?
+  latitude          Float?
+  longitude         Float?
+  telegram_bot_token String?  // Telegram bot token for emergency responders
+  telegram_chat_id   String?  // Telegram chat ID for receiving notifications
+  is_active         Boolean  @default(true)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
   
   // Relations
   logs         SystemLog[]

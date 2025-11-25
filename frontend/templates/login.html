@@ -34,7 +34,12 @@
             align-items: center;
             justify-content: center;
             z-index: 99999;
-            animation: fadeOut 0.8s ease-out 4.2s forwards;
+            animation: fadeOut 0.8s ease-out 1.2s forwards;
+        }
+        
+        /* Hide splash screen if already shown */
+        .splash-screen.hide-splash {
+            display: none;
         }
 
         @keyframes fadeOut {
@@ -192,9 +197,9 @@
             }
         }
 
-        /* Hide main content initially */
+        /* Hide main content initially - REDUCED FROM 4.5s TO 1.5s */
         body > .container {
-            animation: fadeIn 0.8s ease-out 4.5s both;
+            animation: fadeIn 0.8s ease-out 1.5s both;
         }
 
         @keyframes fadeIn {
@@ -512,6 +517,80 @@
             transform: translateX(5px);
         }
         
+        /* Success Animation Styles */
+        .login-btn.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            animation: successPulse 0.6s ease-out;
+        }
+        
+        @keyframes successPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+            }
+        }
+        
+        @keyframes checkmarkDraw {
+            0% {
+                stroke-dashoffset: 100;
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+        }
+        
+        @keyframes checkmarkScale {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+        
+        .success-checkmark {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-left: 8px;
+            animation: checkmarkScale 0.6s ease-out;
+        }
+        
+        .success-checkmark svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .success-checkmark .checkmark-circle {
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: checkmarkDraw 0.5s ease-out forwards;
+        }
+        
+        .success-checkmark .checkmark-check {
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: checkmarkDraw 0.4s 0.2s ease-out forwards;
+        }
+        
         .logo-img {
             width: 120px;
             height: 120px;
@@ -567,10 +646,10 @@
             animation: slideInLeft 0.6s ease-out forwards;
         }
 
-        .feature-item:nth-child(1) { animation-delay: 5.2s; }
-        .feature-item:nth-child(2) { animation-delay: 5.4s; }
-        .feature-item:nth-child(3) { animation-delay: 5.6s; }
-        .feature-item:nth-child(4) { animation-delay: 5.8s; }
+        .feature-item:nth-child(1) { animation-delay: 0.3s; }
+        .feature-item:nth-child(2) { animation-delay: 0.5s; }
+        .feature-item:nth-child(3) { animation-delay: 0.7s; }
+        .feature-item:nth-child(4) { animation-delay: 0.9s; }
 
         @keyframes slideInLeft {
             to {
@@ -697,6 +776,122 @@
 
         .forgot-password-link:hover i {
             transform: rotate(-10deg) scale(1.1);
+        }
+        
+        /* Remember Me and Inline Forgot Password Styles */
+        .remember-me-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            margin-left: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .form-check-input:checked {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+        }
+        
+        .form-check-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .forgot-password-link-inline {
+            color: #3b82f6;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .forgot-password-link-inline::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: #1e40af;
+            transition: width 0.3s ease;
+        }
+        
+        .forgot-password-link-inline:hover {
+            color: #1e40af;
+            text-decoration: none;
+        }
+        
+        .forgot-password-link-inline:hover::after {
+            width: 100%;
+        }
+        
+        /* Password Strength Indicator */
+        .password-strength-container {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .password-strength-bar {
+            flex: 1;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .password-strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .password-strength-fill.weak {
+            width: 33%;
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .password-strength-fill.medium {
+            width: 66%;
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .password-strength-fill.strong {
+            width: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+        
+        .password-strength-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        .password-strength-text.weak {
+            color: #dc2626;
+        }
+        
+        .password-strength-text.medium {
+            color: #d97706;
+        }
+        
+        .password-strength-text.strong {
+            color: #059669;
         }
         
         /* Modal Styles */
@@ -837,28 +1032,100 @@
             display: block;
         }
         
-        /* Responsive design */
+        /* Responsive design - ENHANCED */
         @media (max-width: 768px) {
             body {
-                padding: 15px;
+                padding: 10px;
             }
             
-            .login-left, .login-right {
+            /* Hide left panel on mobile */
+            .login-left {
+                display: none;
+            }
+            
+            .login-container {
+                border-radius: 12px;
+            }
+            
+            .login-right {
+                padding: 30px 20px;
+                border-radius: 12px;
+            }
+            
+            .login-right h2 {
+                font-size: 2rem;
+                margin-bottom: 6px;
+            }
+            
+            .login-subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 25px;
+            }
+            
+            .form-control {
+                padding: 12px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .input-wrapper .form-control {
+                padding-left: 45px;
+            }
+            
+            .login-btn {
+                padding: 14px;
+                font-size: 1rem;
+                min-height: 48px; /* Better touch target */
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .forgot-password-link-inline {
+                font-size: 0.8125rem;
+            }
+            
+            .remember-me-label {
+                font-size: 0.8125rem;
+            }
+            
+            /* Reduce splash screen time on mobile */
+            body > .container {
+                animation: fadeIn 0.6s ease-out 1s both;
+            }
+            
+            .splash-screen {
+                animation: fadeOut 0.6s ease-out 0.8s forwards;
+            }
+            
+            .logo-img {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .toast-notification {
+                min-width: 280px;
+                max-width: calc(100vw - 40px);
+            }
+        }
+        
+        /* Tablet optimization */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .login-left {
+                padding: 35px 25px;
+            }
+            
+            .login-right {
                 padding: 40px 30px;
             }
             
             .login-left h1 {
-                font-size: 2.2rem;
+                font-size: 2.5rem;
             }
             
-            .logo-img {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .footer {
-                margin-top: 15px;
-                padding: 12px;
+            .features-list {
+                max-width: 100%;
             }
         }
         
@@ -873,6 +1140,145 @@
         
         .login-btn.loading .btn-icon {
             animation: spin 0.6s linear infinite;
+        }
+        
+        /* Modern Toast Notification Styles */
+        .toast-notification {
+            min-width: 320px;
+            max-width: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            animation: toastSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .toast-notification::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            animation: progressBar 4s linear;
+        }
+        
+        .toast-notification.toast-success::before {
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+        }
+        
+        .toast-notification.toast-error::before {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .toast-notification.toast-danger::before {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .toast-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.4rem;
+        }
+        
+        .toast-success .toast-icon {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #059669;
+        }
+        
+        .toast-error .toast-icon,
+        .toast-danger .toast-icon {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+        
+        .toast-content {
+            flex: 1;
+            padding-top: 3px;
+        }
+        
+        .toast-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            color: #1a202c;
+        }
+        
+        .toast-message {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            color: #718096;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .toast-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .toast-close:hover {
+            background: #f7fafc;
+            color: #4a5568;
+            transform: scale(1.1);
+        }
+        
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%) scale(0.8);
+            }
+        }
+        
+        @keyframes progressBar {
+            from {
+                width: 5px;
+            }
+            to {
+                width: 0;
+            }
+        }
+        
+        .toast-notification.hiding {
+            animation: toastSlideOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
         }
     </style>
 </head>
@@ -908,6 +1314,9 @@
         </div>
     </div>
 
+    <!-- Modern Toast Container - Top Right Corner (OUTSIDE login container) -->
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 99999;"></div>
+
     <div class="container">
         <div class="login-container row g-0">
             <div class="col-md-6 login-left">
@@ -940,23 +1349,23 @@
                 <h2>Welcome Back</h2>
                 <p class="login-subtitle">Sign in to access your dashboard</p>
                 
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <!-- Handle Flash Messages via Toast (consume messages silently) -->
+                {% set messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <script>
+                        // Show flash message as toast on page load (only show the first message once)
+                        (function() {
+                            if (!window.flashMessageShown) {
+                                window.flashMessageShown = true;
+                                window.addEventListener('DOMContentLoaded', function() {
+                                    showToast('{{ messages[0][1] }}', '{{ messages[0][0] }}', 4000);
+                                });
+                            }
+                        })();
+                    </script>
+                {% endif %}
                 
-                                <form method="POST">
-                    {% if error %}
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
-                    </div>
-                    {% endif %}
+                <form method="POST" id="loginForm">
                     
                     <div class="mb-4">
                         <label for="username" class="form-label">Username</label>
@@ -973,16 +1382,32 @@
                             <input type="password" class="form-control has-toggle" id="password" name="password" placeholder="Enter your password" required>
                             <i class="fas fa-eye password-toggle" id="togglePassword"></i>
                         </div>
+                        <!-- Password Strength Indicator -->
+                        <div class="password-strength-container" id="passwordStrengthContainer" style="display: none;">
+                            <div class="password-strength-bar">
+                                <div class="password-strength-fill" id="passwordStrengthFill"></div>
+                            </div>
+                            <span class="password-strength-text" id="passwordStrengthText">Weak</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Remember Me and Forgot Password Row -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+                            <label class="form-check-label remember-me-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="#" class="forgot-password-link-inline" id="forgotPasswordLink">
+                            Forgot Password?
+                        </a>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 login-btn">
                         <span class="btn-text">Sign In</span>
                         <i class="fas fa-arrow-right btn-icon"></i>
                     </button>
-                    
-                    <a href="#" class="forgot-password-link" id="forgotPasswordLink">
-                        <i class="fas fa-lock me-1"></i> Forgot Password?
-                    </a>
                 </form>
                 
                 <div class="copyright-text">
@@ -1019,6 +1444,20 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Control splash screen - only show on first visit
+        const splashScreen = document.getElementById('splashScreen');
+        const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
+        
+        if (hasSeenSplash === 'true') {
+            // User has already seen splash, hide it immediately
+            splashScreen.classList.add('hide-splash');
+            document.querySelector('.container').style.animation = 'none';
+            document.querySelector('.container').style.opacity = '1';
+        } else {
+            // First visit, show splash and mark as seen
+            sessionStorage.setItem('hasSeenSplash', 'true');
+        }
+        
         // Password toggle functionality
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
@@ -1040,6 +1479,64 @@
         
         togglePassword.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(-50%) scale(1)';
+        });
+        
+        // Password Strength Indicator
+        const passwordStrengthContainer = document.getElementById('passwordStrengthContainer');
+        const passwordStrengthFill = document.getElementById('passwordStrengthFill');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        
+        function checkPasswordStrength(pass) {
+            let strength = 0;
+            
+            // Length check
+            if (pass.length >= 8) strength++;
+            if (pass.length >= 12) strength++;
+            
+            // Contains lowercase
+            if (/[a-z]/.test(pass)) strength++;
+            
+            // Contains uppercase
+            if (/[A-Z]/.test(pass)) strength++;
+            
+            // Contains number
+            if (/[0-9]/.test(pass)) strength++;
+            
+            // Contains special character
+            if (/[^a-zA-Z0-9]/.test(pass)) strength++;
+            
+            return strength;
+        }
+        
+        password.addEventListener('input', function() {
+            const value = this.value;
+            
+            if (value.length === 0) {
+                passwordStrengthContainer.style.display = 'none';
+                return;
+            }
+            
+            passwordStrengthContainer.style.display = 'flex';
+            
+            const strength = checkPasswordStrength(value);
+            
+            // Remove all strength classes
+            passwordStrengthFill.classList.remove('weak', 'medium', 'strong');
+            passwordStrengthText.classList.remove('weak', 'medium', 'strong');
+            
+            if (strength <= 2) {
+                passwordStrengthFill.classList.add('weak');
+                passwordStrengthText.classList.add('weak');
+                passwordStrengthText.textContent = 'Weak';
+            } else if (strength <= 4) {
+                passwordStrengthFill.classList.add('medium');
+                passwordStrengthText.classList.add('medium');
+                passwordStrengthText.textContent = 'Medium';
+            } else {
+                passwordStrengthFill.classList.add('strong');
+                passwordStrengthText.classList.add('strong');
+                passwordStrengthText.textContent = 'Strong';
+            }
         });
         
         // Forgot Password Modal functionality
@@ -1069,6 +1566,315 @@
                 forgotPasswordModal.classList.remove('active');
             }
         });
+        
+        // Keyboard Navigation Enhancement
+        const usernameField = document.getElementById('username');
+        const passwordField = document.getElementById('password');
+        
+        // Auto-focus on username field after splash
+        setTimeout(() => {
+            if (usernameField) {
+                usernameField.focus();
+            }
+        }, 2300); // After splash screen (2s) + fade (0.3s)
+        
+        // Enter key to submit from any form field
+        usernameField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordField.focus();
+            }
+        });
+        
+        passwordField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        // Keyboard shortcut: Alt+L to focus on login
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key === 'l') {
+                e.preventDefault();
+                usernameField.focus();
+            }
+        });
+        
+        // Audio Context for sound effects
+        let audioContext = null;
+        
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+        
+        // Play modern success sound - Professional notification sound
+        function playSuccessSound() {
+            const ctx = initAudioContext();
+            const now = ctx.currentTime;
+            
+            // Modern success sound - Smooth upward sweep with harmonics
+            const notes = [
+                { freq: 587.33, time: 0, duration: 0.08, type: 'sine', gain: 0.25 },        // D5 - Main tone
+                { freq: 739.99, time: 0.05, duration: 0.08, type: 'sine', gain: 0.2 },      // F#5 - Harmony
+                { freq: 880.00, time: 0.10, duration: 0.12, type: 'sine', gain: 0.3 },      // A5 - Peak
+                { freq: 1108.73, time: 0.15, duration: 0.1, type: 'triangle', gain: 0.15 }  // C#6 - Sparkle
+            ];
+            
+            notes.forEach(note => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.type = note.type;
+                oscillator.frequency.setValueAtTime(note.freq, now + note.time);
+                
+                // Low-pass filter for warmth
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, now + note.time);
+                filter.Q.setValueAtTime(1, now + note.time);
+                
+                // Smooth envelope
+                gainNode.gain.setValueAtTime(0, now + note.time);
+                gainNode.gain.linearRampToValueAtTime(note.gain, now + note.time + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + note.time + note.duration);
+                
+                oscillator.start(now + note.time);
+                oscillator.stop(now + note.time + note.duration + 0.1);
+            });
+            
+            // Add subtle bass thump for depth
+            const bass = ctx.createOscillator();
+            const bassGain = ctx.createGain();
+            bass.connect(bassGain);
+            bassGain.connect(ctx.destination);
+            bass.type = 'sine';
+            bass.frequency.setValueAtTime(130.81, now); // C3
+            bassGain.gain.setValueAtTime(0.15, now);
+            bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            bass.start(now);
+            bass.stop(now + 0.2);
+        }
+        
+        // Play modern error sound - Professional alert notification
+        function playErrorSound() {
+            const ctx = initAudioContext();
+            const now = ctx.currentTime;
+            
+            // Modern error sound - Double pulse with subtle dissonance
+            const pulses = [
+                // First pulse
+                { freq: 415.30, time: 0, duration: 0.08, type: 'triangle', gain: 0.25 },      // G#4
+                { freq: 392.00, time: 0.001, duration: 0.08, type: 'sine', gain: 0.15 },      // G4 - Dissonance
+                
+                // Second pulse (slightly lower)
+                { freq: 369.99, time: 0.15, duration: 0.1, type: 'triangle', gain: 0.22 },    // F#4
+                { freq: 349.23, time: 0.151, duration: 0.1, type: 'sine', gain: 0.13 }        // F4 - Dissonance
+            ];
+            
+            pulses.forEach(pulse => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.type = pulse.type;
+                oscillator.frequency.setValueAtTime(pulse.freq, now + pulse.time);
+                
+                // Band-pass filter for modern notification sound
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(800, now + pulse.time);
+                filter.Q.setValueAtTime(2, now + pulse.time);
+                
+                // Quick attack and decay
+                gainNode.gain.setValueAtTime(0, now + pulse.time);
+                gainNode.gain.linearRampToValueAtTime(pulse.gain, now + pulse.time + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + pulse.time + pulse.duration);
+                
+                oscillator.start(now + pulse.time);
+                oscillator.stop(now + pulse.time + pulse.duration + 0.05);
+            });
+            
+            // Add subtle click for emphasis
+            const click = ctx.createOscillator();
+            const clickGain = ctx.createGain();
+            click.connect(clickGain);
+            clickGain.connect(ctx.destination);
+            click.type = 'sine';
+            click.frequency.setValueAtTime(1200, now);
+            clickGain.gain.setValueAtTime(0.15, now);
+            clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+            click.start(now);
+            click.stop(now + 0.03);
+        }
+        
+        // Modern Toast Notification System - REDUCED FROM 8s TO 4s
+        function showToast(message, type = 'error', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            
+            // Icon based on type
+            let icon = '';
+            let title = '';
+            
+            if (type === 'success') {
+                icon = '<i class="fas fa-check-circle"></i>';
+                title = 'Success!';
+                playSuccessSound();
+            } else if (type === 'error' || type === 'danger') {
+                icon = '<i class="fas fa-times-circle"></i>';
+                title = 'Oops!';
+                playErrorSound();
+            }
+            
+            // User-friendly messages
+            let displayMessage = message;
+            if (message.includes('Invalid username or password')) {
+                displayMessage = "The credentials you entered don't match our records. Please double-check and try again.";
+            } else if (message.includes('logged out successfully')) {
+                displayMessage = "You've been safely logged out. See you next time!";
+            } else if (message.includes('inactive')) {
+                displayMessage = "Your account is currently inactive. Please contact your administrator for assistance.";
+            } else if (message.includes('Unable to connect')) {
+                displayMessage = "We couldn't reach the server. Please check your internet connection and try again.";
+            }
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <p class="toast-message">${displayMessage}</p>
+                </div>
+                <button class="toast-close" onclick="dismissToast(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto-dismiss after duration
+            setTimeout(() => {
+                dismissToast(toast.querySelector('.toast-close'));
+            }, duration);
+        }
+        
+        // Dismiss toast with animation
+        function dismissToast(button) {
+            const toast = button.closest('.toast-notification');
+            if (toast) {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    toast.remove();
+                }, 400);
+            }
+        }
+        
+        // Handle login form submission with AJAX
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = loginForm.querySelector('.login-btn');
+        const btnText = loginButton.querySelector('.btn-text');
+        const btnIcon = loginButton.querySelector('.btn-icon');
+        
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(loginForm);
+            
+            // Show loading state
+            loginButton.disabled = true;
+            loginButton.classList.add('loading');
+            btnText.textContent = 'Signing in...';
+            btnIcon.className = 'fas fa-spinner btn-icon';
+            
+            try {
+                // Send AJAX request
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Success! Add success class and animate
+                    loginButton.classList.add('success');
+                    loginButton.classList.remove('loading');
+                    
+                    // Create animated checkmark SVG
+                    const checkmarkSVG = `
+                        <svg class="success-checkmark" viewBox="0 0 52 52">
+                            <circle class="checkmark-circle" cx="26" cy="26" r="23"/>
+                            <path class="checkmark-check" fill="none" d="M14 27l7 7 16-16"/>
+                        </svg>
+                    `;
+                    
+                    // Update button content with success message and animated checkmark
+                    btnText.textContent = 'Success!';
+                    btnIcon.style.display = 'none';
+                    loginButton.insertAdjacentHTML('beforeend', checkmarkSVG);
+                    
+                    // Play success sound
+                    playSuccessSound();
+                    
+                    // Redirect after showing animation
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1200);
+                } else {
+                    // Show error toast with user-friendly message
+                    showToast(data.message, 'error', 4000);
+                    
+                    // Reset button state
+                    loginButton.disabled = false;
+                    loginButton.classList.remove('loading');
+                    btnText.textContent = 'Sign In';
+                    btnIcon.className = 'fas fa-arrow-right btn-icon';
+                    
+                    // Shake the form to indicate error
+                    loginForm.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        loginForm.style.animation = '';
+                    }, 500);
+                }
+            } catch (error) {
+                // Network error or other issue
+                showToast('Unable to connect to the server. Please check your connection and try again.', 'error', 4000);
+                
+                // Reset button state
+                loginButton.disabled = false;
+                loginButton.classList.remove('loading');
+                btnText.textContent = 'Sign In';
+                btnIcon.className = 'fas fa-arrow-right btn-icon';
+            }
+        });
+        
+        // Shake animation for form
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

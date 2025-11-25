@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 
 class AccidentDetector:
     """
-    YOLOv10-based accident detection system
-    Detects potential road accidents based on object detection and spatial analysis
+    ENHANCED YOLOv10-based accident detection system
+    Detects potential road accidents using advanced spatial analysis and temporal tracking
     """
     
     def __init__(self, model_path: Optional[str] = None, confidence: float = None):
         """
-        Initialize the accident detector
+        Initialize the enhanced accident detector
         
         Args:
             model_path: Path to YOLOv10 model file
@@ -36,33 +36,49 @@ class AccidentDetector:
         self.confidence = confidence or Config.YOLO_CONFIDENCE_THRESHOLD
         self.iou_threshold = Config.YOLO_IOU_THRESHOLD
         
-        # Load YOLO model
+        # Load YOLO model - Use larger model for better accuracy
         try:
             self.model = YOLO(self.model_path)
             logger.info(f"✓ YOLOv10 model loaded from {self.model_path}")
         except Exception as e:
             logger.error(f"Failed to load YOLO model: {e}")
-            # Download default model if not found
-            logger.info("Downloading YOLOv10n model...")
-            self.model = YOLO("yolov10n.pt")
-            logger.info("✓ Default YOLOv10n model loaded")
+            # Try YOLOv10m (medium model - better than 'n')
+            logger.info("Downloading YOLOv10m model for better accuracy...")
+            try:
+                self.model = YOLO("yolov10m.pt")
+                logger.info("✓ YOLOv10m model loaded (improved accuracy)")
+            except Exception as fallback_error:
+                # Fallback to yolov10n
+                logger.warning(f"Could not load yolov10m: {fallback_error}")
+                self.model = YOLO("yolov10n.pt")
+                logger.info("✓ YOLOv10n model loaded (fallback)")
         
         # Accident-related classes from COCO dataset
         self.vehicle_classes = [2, 3, 5, 7]  # car, motorcycle, bus, truck
         self.person_class = 0
         self.bicycle_class = 1
         
-        # Accident detection parameters
+        # Enhanced temporal tracking for multi-frame verification
+        self.detection_history = []  # Store last N frames
+        self.history_length = 5  # Analyze last 5 frames
+        self.accident_frame_threshold = 3  # Must detect in 3/5 frames
+        
+        # Previous frame detections for motion analysis
+        self.prev_detections = None
+        
+        # Enhanced accident detection parameters
         self.accident_indicators = {
-            "multiple_vehicles_close": 0.3,
-            "unusual_vehicle_angle": 0.4,
-            "person_near_vehicle": 0.3,
-            "vehicle_overlap": 0.5
+            "vehicle_collision": 0.7,      # Direct collision/overlap (CRITICAL)
+            "abnormal_orientation": 0.6,   # Flipped/tilted vehicles
+            "multiple_vehicles_close": 0.4, # Cluster of vehicles
+            "person_near_vehicle": 0.3,    # Pedestrian involvement
+            "motorcycle_incident": 0.5,    # Motorcycle crashes
+            "sudden_stop": 0.4            # Rapid deceleration
         }
     
     def detect_objects(self, frame: np.ndarray) -> List[Dict]:
         """
-        Detect objects in a frame using YOLOv10
+        ENHANCED: Detect objects in a frame using YOLOv10 with better filtering
         
         Args:
             frame: Input video frame
@@ -70,11 +86,15 @@ class AccidentDetector:
         Returns:
             List of detected objects with bounding boxes and confidence
         """
+        # Run detection with optimized parameters for speed
         results = self.model(
             frame, 
-            conf=self.confidence, 
+            conf=self.confidence,
             iou=self.iou_threshold,
-            verbose=False
+            verbose=False,
+            imgsz=416,  # Reduced from 640 to 416 for 2.4x faster inference
+            half=False,  # Full precision
+            device='cpu'  # Explicit CPU to avoid GPU overhead
         )
         
         detections = []
@@ -85,17 +105,72 @@ class AccidentDetector:
                 conf = float(box.conf[0].cpu().numpy())
                 cls = int(box.cls[0].cpu().numpy())
                 
+                # Calculate additional features
+                width = x2 - x1
+                height = y2 - y1
+                center_x = (x1 + x2) / 2
+                center_y = (y1 + y2) / 2
+                area = width * height
+                aspect_ratio = width / height if height > 0 else 0
+                
                 detection = {
                     "bbox": [float(x1), float(y1), float(x2), float(y2)],
                     "confidence": conf,
                     "class_id": cls,
                     "class_name": self.model.names[cls],
-                    "center": [(x1 + x2) / 2, (y1 + y2) / 2],
-                    "area": (x2 - x1) * (y2 - y1)
+                    "center": [center_x, center_y],
+                    "area": area,
+                    "width": width,
+                    "height": height,
+                    "aspect_ratio": aspect_ratio
                 }
                 detections.append(detection)
         
         return detections
+    
+    def calculate_motion_score(self, current_detections: List[Dict]) -> float:
+        """
+        Calculate motion/change score between frames for sudden stop detection
+        
+        Returns:
+            Motion score (higher = more movement/change)
+        """
+        if self.prev_detections is None or len(self.prev_detections) == 0:
+            self.prev_detections = current_detections
+            return 0.0
+        
+        # Track significant position changes
+        motion_score = 0.0
+        matched_vehicles = 0
+        
+        current_vehicles = [d for d in current_detections if d["class_id"] in self.vehicle_classes]
+        prev_vehicles = [d for d in self.prev_detections if d["class_id"] in self.vehicle_classes]
+        
+        # Match vehicles between frames (simple nearest neighbor)
+        for curr_v in current_vehicles:
+            min_dist = float('inf')
+            closest_prev = None
+            
+            for prev_v in prev_vehicles:
+                dist = self.calculate_distance(curr_v["center"], prev_v["center"])
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_prev = prev_v
+            
+            # If vehicle moved significantly less than expected (sudden stop)
+            if closest_prev and min_dist < 100:  # Same vehicle if within 100px
+                # Check if size changed dramatically (collision/deformation)
+                size_change = abs(curr_v["area"] - closest_prev["area"]) / closest_prev["area"]
+                
+                # Check if orientation changed (flipped/crashed)
+                aspect_change = abs(curr_v["aspect_ratio"] - closest_prev["aspect_ratio"])
+                
+                if size_change > 0.3 or aspect_change > 0.5:
+                    motion_score += 0.3
+                    matched_vehicles += 1
+        
+        self.prev_detections = current_detections
+        return min(motion_score, 1.0)
     
     def calculate_iou(self, box1: List[float], box2: List[float]) -> float:
         """Calculate Intersection over Union between two boxes"""
@@ -126,7 +201,8 @@ class AccidentDetector:
     
     def analyze_accident_probability(self, detections: List[Dict]) -> Tuple[bool, float, Dict]:
         """
-        Analyze detections to determine accident probability
+        ENHANCED v2: Advanced accident analysis with multi-indicator fusion
+        Uses stricter thresholds and better logic to minimize false positives
         
         Args:
             detections: List of object detections
@@ -134,72 +210,247 @@ class AccidentDetector:
         Returns:
             Tuple of (is_accident, confidence, details)
         """
-        if len(detections) < 2:
+        # Minimum requirements for accident detection
+        if len(detections) < 1:
             return False, 0.0, {}
         
-        vehicles = [d for d in detections if d["class_id"] in self.vehicle_classes]
+        # Categorize detections
+        vehicles = [d for d in detections if d["class_id"] in self.vehicle_classes 
+                   and d["class_id"] != 3]  # Exclude motorcycles from vehicles
+        motorcycles = [d for d in detections if d["class_id"] == 3]
         persons = [d for d in detections if d["class_id"] == self.person_class]
         
-        if len(vehicles) < 2 and len(persons) == 0:
+        # Need at least 1 vehicle OR motorcycle
+        if len(vehicles) == 0 and len(motorcycles) == 0:
             return False, 0.0, {}
         
         accident_score = 0.0
+        critical_indicators = 0  # Count of critical evidence
+        
         details = {
             "indicators": [],
             "detected_objects": len(detections),
             "vehicles": len(vehicles),
-            "persons": len(persons)
+            "motorcycles": len(motorcycles),
+            "persons": len(persons),
+            "critical_evidence": []
         }
         
-        # Check for vehicle overlaps/collisions
-        for i, v1 in enumerate(vehicles):
-            for v2 in vehicles[i+1:]:
+        all_vehicles = vehicles + motorcycles
+        
+        # Calculate motion score for sudden changes
+        motion_score = self.calculate_motion_score(detections)
+        
+        # ============= CRITICAL INDICATORS (High confidence) =============
+        
+        # INDICATOR 1: Direct Vehicle Collision/Overlap (HIGHEST PRIORITY)
+        # IoU > 0.25 means significant overlap - vehicles occupying same space
+        max_collision_score = 0.0
+        for i, v1 in enumerate(all_vehicles):
+            for v2 in all_vehicles[i+1:]:
                 iou = self.calculate_iou(v1["bbox"], v2["bbox"])
-                distance = self.calculate_distance(v1["center"], v2["center"])
                 
-                # High IoU indicates collision
-                if iou > 0.1:
-                    score = min(iou * 2, 1.0) * self.accident_indicators["vehicle_overlap"]
-                    accident_score += score
-                    details["indicators"].append({
-                        "type": "vehicle_overlap",
-                        "score": score,
-                        "iou": iou
-                    })
-                
-                # Very close vehicles
-                avg_size = (np.sqrt(v1["area"]) + np.sqrt(v2["area"])) / 2
-                if distance < avg_size * 1.5:
-                    score = self.accident_indicators["multiple_vehicles_close"]
-                    accident_score += score
-                    details["indicators"].append({
-                        "type": "vehicles_close",
-                        "score": score,
-                        "distance": distance
+                if iou > 0.25:  # STRICT: 25%+ overlap is abnormal
+                    # This is CRITICAL evidence of collision
+                    score = min(iou * 4.0, 1.0) * self.accident_indicators["vehicle_collision"]
+                    max_collision_score = max(max_collision_score, score)
+                    critical_indicators += 1
+                    details["critical_evidence"].append({
+                        "type": "COLLISION",
+                        "iou": round(iou, 3),
+                        "confidence": "CRITICAL"
                     })
         
-        # Check for persons near vehicles (potential casualties)
+        if max_collision_score > 0:
+            accident_score += max_collision_score
+            details["indicators"].append({
+                "type": "vehicle_collision",
+                "score": max_collision_score,
+                "severity": "CRITICAL"
+            })
+        
+        # INDICATOR 2: Abnormal Vehicle Orientation (Flipped/Crashed)
+        # Vehicles normally are wider than tall - if reversed, likely crashed
+        for vehicle in all_vehicles:
+            aspect_ratio = vehicle.get("aspect_ratio", 1.0)
+            
+            # Normal cars/trucks: aspect > 1.3
+            # Flipped/crashed: aspect < 0.85
+            if aspect_ratio < 0.85 and vehicle["confidence"] > 0.7:
+                score = self.accident_indicators["abnormal_orientation"]
+                accident_score += score
+                critical_indicators += 1
+                details["critical_evidence"].append({
+                    "type": "FLIPPED_VEHICLE",
+                    "aspect_ratio": round(aspect_ratio, 2),
+                    "confidence": "CRITICAL"
+                })
+                details["indicators"].append({
+                    "type": "abnormal_orientation",
+                    "score": score,
+                    "aspect_ratio": aspect_ratio,
+                    "severity": "CRITICAL"
+                })
+        
+        # INDICATOR 3: Sudden Motion Change (Vehicle deformation/crash impact)
+        if motion_score > 0.2:
+            score = motion_score * self.accident_indicators["sudden_stop"]
+            accident_score += score
+            critical_indicators += 1
+            details["indicators"].append({
+                "type": "sudden_motion_change",
+                "score": score,
+                "motion_score": motion_score,
+                "severity": "HIGH"
+            })
+        
+        # ============= MODERATE INDICATORS (Supporting evidence) =============
+        
+        # INDICATOR 4: Multiple Vehicles Clustering (Pile-up potential)
+        # 3+ vehicles abnormally close together
+        if len(all_vehicles) >= 3:
+            close_vehicle_pairs = 0
+            for i, v1 in enumerate(all_vehicles):
+                for v2 in all_vehicles[i+1:]:
+                    distance = self.calculate_distance(v1["center"], v2["center"])
+                    avg_size = (np.sqrt(v1["area"]) + np.sqrt(v2["area"])) / 2
+                    
+                    # STRICT: distance < 0.7 x average size
+                    if distance < avg_size * 0.7:
+                        close_vehicle_pairs += 1
+            
+            if close_vehicle_pairs >= 3:  # Need 3+ pairs for confidence
+                score = min(close_vehicle_pairs / 4.0, 0.5) * self.accident_indicators["multiple_vehicles_close"]
+                accident_score += score
+                details["indicators"].append({
+                    "type": "vehicle_clustering",
+                    "score": score,
+                    "close_pairs": close_vehicle_pairs,
+                    "severity": "MODERATE"
+                })
+        
+        # INDICATOR 5: Motorcycle Incident (High risk)
+        # Motorcycles are vulnerable - if fallen or person nearby
+        if len(motorcycles) > 0:
+            for motorcycle in motorcycles:
+                # Check if motorcycle appears fallen (aspect ratio)
+                if motorcycle.get("aspect_ratio", 1.0) < 1.0:  # Wider than tall = fallen
+                    score = self.accident_indicators["motorcycle_incident"]
+                    accident_score += score
+                    critical_indicators += 1
+                    details["indicators"].append({
+                        "type": "fallen_motorcycle",
+                        "score": score,
+                        "severity": "HIGH"
+                    })
+                    break
+                
+                # Check person very close to motorcycle
+                for person in persons:
+                    distance = self.calculate_distance(person["center"], motorcycle["center"])
+                    avg_size = np.sqrt(motorcycle["area"])
+                    if distance < avg_size * 1.0:  # Very close
+                        score = self.accident_indicators["motorcycle_incident"] * 0.6
+                        accident_score += score
+                        details["indicators"].append({
+                            "type": "motorcycle_person_incident",
+                            "score": score,
+                            "severity": "HIGH"
+                        })
+                        break
+        
+        # INDICATOR 6: Person on Roadway (Potential casualty)
+        # Only significant if very close to vehicle
+        high_risk_persons = 0
         for person in persons:
-            for vehicle in vehicles:
+            for vehicle in all_vehicles:
                 distance = self.calculate_distance(person["center"], vehicle["center"])
                 avg_size = np.sqrt(vehicle["area"])
                 
-                if distance < avg_size * 2:
-                    score = self.accident_indicators["person_near_vehicle"]
-                    accident_score += score
-                    details["indicators"].append({
-                        "type": "person_near_vehicle",
-                        "score": score,
-                        "distance": distance
-                    })
+                # STRICT: person within vehicle boundary zone
+                if distance < avg_size * 0.8:
+                    high_risk_persons += 1
+                    break
+        
+        if high_risk_persons > 0:
+            score = min(high_risk_persons * 0.2, 0.3) * self.accident_indicators["person_near_vehicle"]
+            accident_score += score
+            details["indicators"].append({
+                "type": "person_in_danger",
+                "score": score,
+                "count": high_risk_persons,
+                "severity": "MODERATE"
+            })
         
         # Normalize score
         accident_score = min(accident_score, 1.0)
-        is_accident = accident_score > 0.5
         
-        details["accident_score"] = accident_score
+        # ============= MULTI-FRAME TEMPORAL VERIFICATION =============
+        # Add current detection to history
+        self.detection_history.append(accident_score)
+        if len(self.detection_history) > self.history_length:
+            self.detection_history.pop(0)
         
-        return is_accident, accident_score, details
+        # Calculate temporal confidence
+        # Accident must be detected consistently across multiple frames
+        if len(self.detection_history) >= 3:
+            high_score_frames = sum(1 for score in self.detection_history if score > 0.5)
+            temporal_confidence = high_score_frames / len(self.detection_history)
+        else:
+            temporal_confidence = 0.0
+        
+        # ============= FINAL DECISION LOGIC =============
+        # Use strict multi-criteria decision
+        
+        # PRIMARY: High single-frame score + critical evidence
+        primary_detection = (
+            accident_score > 0.70 and 
+            critical_indicators >= 1
+        )
+        
+        # SECONDARY: Moderate score but consistent across frames
+        secondary_detection = (
+            accident_score > 0.55 and
+            temporal_confidence > 0.6 and
+            critical_indicators >= 1
+        )
+        
+        # TERTIARY: Multiple critical indicators even with lower score
+        tertiary_detection = (
+            critical_indicators >= 2 and
+            accident_score > 0.50
+        )
+        
+        is_accident = primary_detection or secondary_detection or tertiary_detection
+        
+        # Calculate final confidence
+        if is_accident:
+            final_confidence = min(
+                accident_score * 0.6 +  # Single frame score
+                temporal_confidence * 0.2 +  # Temporal consistency
+                (critical_indicators * 0.1),  # Evidence strength
+                1.0
+            )
+        else:
+            final_confidence = accident_score
+        
+        details["accident_score"] = round(accident_score, 3)
+        details["temporal_confidence"] = round(temporal_confidence, 3)
+        details["critical_indicators"] = critical_indicators
+        details["detection_method"] = (
+            "PRIMARY" if primary_detection else
+            "SECONDARY" if secondary_detection else
+            "TERTIARY" if tertiary_detection else
+            "NONE"
+        )
+        details["threshold_used"] = {
+            "primary": 0.70,
+            "secondary": 0.55,
+            "tertiary": 0.50
+        }
+        details["decision"] = "⚠️ ACCIDENT DETECTED" if is_accident else "✓ Normal Traffic"
+        
+        return is_accident, final_confidence, details
     
     def process_frame(self, frame: np.ndarray) -> Dict:
         """

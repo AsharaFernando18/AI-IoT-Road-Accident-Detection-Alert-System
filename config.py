@@ -48,13 +48,13 @@ class Config:
         "https://nominatim.openstreetmap.org"
     )
     
-    # YOLOv10 Configuration
+    # YOLOv10 Configuration - ENHANCED FOR ACCURACY
     YOLO_MODEL_PATH = BASE_DIR / os.getenv(
         "YOLO_MODEL_PATH", 
-        "ai_model/models/yolov10n.pt"
+        "ai_model/models/yolov10m.pt"  # Using medium model for better accuracy
     )
-    YOLO_CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONFIDENCE_THRESHOLD", "0.5"))
-    YOLO_IOU_THRESHOLD = float(os.getenv("YOLO_IOU_THRESHOLD", "0.45"))
+    YOLO_CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONFIDENCE_THRESHOLD", "0.60"))  # Increased from 0.5
+    YOLO_IOU_THRESHOLD = float(os.getenv("YOLO_IOU_THRESHOLD", "0.40"))  # Slightly reduced for better overlap detection
     
     # Accident detection classes (COCO dataset)
     ACCIDENT_CLASSES = [
@@ -100,12 +100,17 @@ class Config:
         "zh": "Mandarin"
     }
     
-    # Alert Configuration
-    ALERT_COOLDOWN_SECONDS = int(os.getenv("ALERT_COOLDOWN_SECONDS", "300"))
+    # Alert Configuration - ENHANCED
+    ALERT_COOLDOWN_SECONDS = int(os.getenv("ALERT_COOLDOWN_SECONDS", "60"))  # 60 seconds cooldown for same location
     
-    # Video Configuration
+    # Video Configuration - ENHANCED FOR ACCURACY
     VIDEO_SOURCE = os.getenv("VIDEO_SOURCE", "0")
-    VIDEO_FRAME_SKIP = int(os.getenv("VIDEO_FRAME_SKIP", "2"))
+    VIDEO_FRAME_SKIP = int(os.getenv("VIDEO_FRAME_SKIP", "3"))  # Process every 3rd frame for better temporal tracking
+    
+    # Mock Location Configuration (for testing with static video)
+    MOCK_LOCATION_LAT = float(os.getenv("MOCK_LOCATION_LAT", "3.1390"))
+    MOCK_LOCATION_LON = float(os.getenv("MOCK_LOCATION_LON", "101.6869"))
+    MOCK_LOCATION_NAME = os.getenv("MOCK_LOCATION_NAME", "Kuala Lumpur, Malaysia")
     
     # Logging
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

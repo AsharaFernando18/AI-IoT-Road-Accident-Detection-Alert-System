@@ -91,6 +91,430 @@
             border-radius: 2px;
         }
         
+        /* ENHANCED Slide Notifications - Modern UI/UX Design */
+        .slide-notification {
+            position: fixed;
+            right: -650px;
+            width: 580px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 24px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25), 
+                        0 0 0 2px rgba(0, 0, 0, 0.08),
+                        0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10000;
+            border: 3px solid transparent;
+            backdrop-filter: blur(15px);
+            animation: slideGlow 2.5s ease-in-out infinite;
+            transform: scale(0.95);
+        }
+        
+        .slide-notification.show {
+            right: 35px;
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        
+        @keyframes slideGlow {
+            0%, 100% { 
+                box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25), 
+                            0 0 40px rgba(59, 130, 246, 0.3),
+                            0 0 0 2px rgba(0, 0, 0, 0.08);
+            }
+            50% { 
+                box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35), 
+                            0 0 70px rgba(59, 130, 246, 0.6),
+                            0 0 0 3px rgba(59, 130, 246, 0.3);
+            }
+        }
+        
+        /* Accident Alert Styling - Slides from LEFT */
+        .accident-alert-left {
+            position: fixed;
+            top: 120px;
+            left: -650px;
+            right: auto;
+            width: 580px;
+            max-width: 90vw;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 24px;
+            box-shadow: 0 25px 80px rgba(220, 38, 38, 0.35);
+            overflow: hidden;
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10001;
+            border: 3px solid rgba(220, 38, 38, 0.6);
+            backdrop-filter: blur(15px);
+            animation: emergencyPulse 1.5s ease-in-out infinite;
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        
+        .accident-alert-left.show {
+            left: 35px;
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        
+        /* Accident alert left - internal elements */
+        .accident-alert-left .notification-icon {
+            float: left;
+            width: 85px;
+            height: 100%;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            color: white;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+            animation: iconBounce 0.6s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .accident-alert-left .notification-content {
+            margin-left: 85px;
+            padding: 1.75rem 1.5rem;
+            position: relative;
+        }
+        
+        .accident-alert-left h4 {
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #dc2626;
+        }
+        
+        .accident-alert-left p {
+            margin: 0.75rem 0;
+            font-size: 0.95rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .accident-alert-left .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(220, 38, 38, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #dc2626;
+            font-size: 1rem;
+            z-index: 10;
+        }
+        
+        .accident-alert-left .close-btn:hover {
+            background: #dc2626;
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        .accident-alert-left .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 5px;
+            width: 100%;
+            background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+            animation: progressBar 15s linear;
+            border-radius: 0 0 18px 18px;
+        }
+        
+        /* Old accident alert styling for right-side (legacy) */
+        .accident-alert {
+            border-color: rgba(220, 38, 38, 0.3);
+            animation: emergencyPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes emergencyPulse {
+            0%, 100% { 
+                box-shadow: 0 25px 80px rgba(220, 38, 38, 0.4),
+                            0 0 50px rgba(220, 38, 38, 0.6),
+                            0 0 0 3px rgba(220, 38, 38, 0.4);
+                border-color: rgba(220, 38, 38, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 30px 100px rgba(220, 38, 38, 0.6),
+                            0 0 80px rgba(220, 38, 38, 0.8),
+                            0 0 0 5px rgba(220, 38, 38, 0.6);
+                border-color: rgba(220, 38, 38, 1);
+                transform: scale(1.02);
+            }
+        }
+        
+        /* Service Notification Styling */
+        .service-notification {
+            border-color: rgba(22, 163, 74, 0.3);
+        }
+        
+        .slide-notification .notification-icon {
+            float: left;
+            width: 85px;
+            height: 100%;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide-notification .notification-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            animation: iconShimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes iconShimmer {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+        
+        .accident-alert .notification-icon {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+            animation: iconBounce 0.6s ease-in-out;
+        }
+        
+        @keyframes iconBounce {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            75% { transform: scale(0.9) rotate(5deg); }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        .service-notification .notification-icon {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
+        }
+        
+        .slide-notification .notification-content {
+            margin-left: 85px;
+            padding: 1.75rem 1.5rem;
+            position: relative;
+        }
+        
+        .slide-notification h4 {
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #111827 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: titleSlideIn 0.5s ease-out 0.2s both;
+        }
+        
+        @keyframes titleSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .accident-alert h4 {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .service-notification h4 {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .slide-notification h4 i {
+            animation: iconSpin 2s ease-in-out infinite;
+        }
+        
+        @keyframes iconSpin {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-10deg) scale(1.1); }
+            75% { transform: rotate(10deg) scale(1.1); }
+        }
+        
+        .slide-notification p {
+            margin: 0.6rem 0;
+            font-size: 0.95rem;
+            color: #1f2937;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: contentFadeIn 0.5s ease-out both;
+            padding: 0.4rem 0;
+        }
+        
+        .slide-notification p:nth-child(2) { animation-delay: 0.3s; }
+        .slide-notification p:nth-child(3) { animation-delay: 0.4s; }
+        .slide-notification p:nth-child(4) { animation-delay: 0.5s; }
+        .slide-notification p:nth-child(5) { animation-delay: 0.6s; }
+        
+        @keyframes contentFadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-notification p strong {
+            color: #111827;
+            font-weight: 700;
+        }
+        
+        .slide-notification p i {
+            color: #3b82f6;
+            font-size: 1rem;
+            min-width: 20px;
+        }
+        
+        .slide-notification .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 5px;
+            width: 100%;
+            background: linear-gradient(90deg, 
+                #3b82f6 0%, 
+                #8b5cf6 25%, 
+                #ec4899 50%, 
+                #f59e0b 75%, 
+                #10b981 100%);
+            animation: progressBar 3s linear, progressGradient 3s ease-in-out;
+            border-radius: 0 0 18px 18px;
+        }
+        
+        @keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        @keyframes progressGradient {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        /* Close button for notifications */
+        .slide-notification .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .slide-notification .close-btn:hover {
+            background: rgba(220, 38, 38, 0.1);
+            transform: rotate(90deg);
+        }
+        
+        .slide-notification .close-btn i {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        /* Badge for severity/priority */
+        .notification-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+        
+        .badge-critical {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+        
+        .badge-success {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .slide-notification {
+                width: calc(100% - 40px);
+                right: -100%;
+            }
+            
+            .slide-notification.show {
+                right: 20px;
+            }
+        }
+        
         /* Dashboard Header */
         .dashboard-header {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
@@ -243,7 +667,9 @@
         .incidents-container {
             max-height: 450px;
             overflow-y: auto;
+            overflow-x: hidden;
             padding-right: 0.5rem;
+            padding-top: 1rem;
         }
         
         .incident-card {
@@ -251,9 +677,18 @@
             border-left: 4px solid var(--navy-blue);
             border-radius: 12px;
             padding: 1.25rem;
+            padding-right: 1.5rem;
             margin-bottom: 1rem;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
             transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
+            overflow: visible;
+        }
+        
+        .incident-card:first-child {
+            margin-top: 0;
         }
         
         .incident-card:hover {
@@ -280,6 +715,63 @@
         @keyframes pulse-critical {
             0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
             50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        }
+        
+        /* Highlight unresolved/pending incidents */
+        .incident-card.status-pending,
+        .incident-card.status-confirmed,
+        .incident-card.status-active {
+            border-left-width: 8px !important;
+            box-shadow: 0 6px 25px rgba(220, 38, 38, 0.4);
+            animation: highlight-pulse 1.5s ease-in-out infinite;
+            position: relative;
+            background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 50%, #ffffff 100%) !important;
+        }
+        
+        @keyframes highlight-pulse {
+            0%, 100% { 
+                box-shadow: 0 6px 25px rgba(220, 38, 38, 0.4);
+                transform: translateY(0);
+                border-left-color: #dc2626;
+            }
+            50% { 
+                box-shadow: 0 8px 35px rgba(239, 68, 68, 0.6);
+                transform: translateY(-3px);
+                border-left-color: #ef4444;
+            }
+        }
+        
+        /* NEW badge for unresolved incidents */
+        .incident-card.status-pending::after,
+        .incident-card.status-confirmed::after,
+        .incident-card.status-active::after {
+            content: '🚨 NEW';
+            position: absolute;
+            top: -12px;
+            right: 10px;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.7);
+            animation: badge-blink 1s ease-in-out infinite;
+            z-index: 10;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes badge-blink {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 0.9;
+                box-shadow: 0 6px 20px rgba(239, 68, 68, 0.9);
+            }
         }
         
         .incident-card.status-resolved {
@@ -619,6 +1111,7 @@
                             <i class="fas fa-bell me-1"></i>Notifications
                         </a>
                     </li>
+                    {% if user_role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/users">
                             <i class="fas fa-users me-1"></i>Users
@@ -629,6 +1122,7 @@
                             <i class="fas fa-bell-concierge me-1"></i>Notification Config
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/settings">
                             <i class="fas fa-sliders-h me-1"></i>Settings
@@ -651,6 +1145,164 @@
             </div>
         </div>
     </nav>
+
+    <!-- Incident Details Modal -->
+    <div class="modal fade" id="incidentModal" tabindex="-1" aria-labelledby="incidentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%); border: none; padding: 1.75rem 2rem; color: white;">
+                    <h5 class="modal-title" id="incidentModalLabel" style="font-family: 'Sora', sans-serif; font-weight: 600; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                        <i class="fas fa-car-crash" style="font-size: 1.5rem;"></i>
+                        <span id="modal-incident-title">Incident Details</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem; background: white;">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid var(--navy-blue);">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-hashtag me-1"></i>Incident ID
+                                </div>
+                                <div style="font-size: 1.1rem; font-weight: 700; color: var(--navy-blue);" id="modal-incident-id">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid var(--orange-warning);">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Severity
+                                </div>
+                                <div style="font-size: 1.1rem; font-weight: 700;" id="modal-incident-severity">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid var(--green-success);">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-info-circle me-1"></i>Status
+                                </div>
+                                <div style="font-size: 1.1rem; font-weight: 700;" id="modal-incident-status">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-car-crash me-1"></i>Type
+                                </div>
+                                <div style="font-size: 1.1rem; font-weight: 700;" id="modal-incident-type">-</div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-map-marker-alt me-1"></i>Location
+                                </div>
+                                <div style="font-size: 1rem; font-weight: 600;" id="modal-incident-location">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #ec4899;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-clock me-1"></i>Timestamp
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 600;" id="modal-incident-timestamp">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #10b981;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-percentage me-1"></i>Confidence
+                                </div>
+                                <div style="font-size: 1rem; font-weight: 700;" id="modal-incident-confidence">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="modal-incident-coordinates-container" style="display: none;">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-map-pin me-1"></i>GPS Coordinates
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 600;" id="modal-incident-coordinates">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="modal-incident-city-container" style="display: none;">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #6366f1;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.25rem; font-weight: 600;">
+                                    <i class="fas fa-city me-1"></i>City
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 600;" id="modal-incident-city">-</div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3" id="modal-incident-map-container" style="display: none;">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 12px; border-left: 4px solid #ef4444;">
+                                <div style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.75rem; font-weight: 600;">
+                                    <i class="fas fa-map-marked-alt me-1"></i>Location Map
+                                </div>
+                                <div id="modal-incident-map" style="width: 100%; height: 300px; border-radius: 8px; overflow: hidden; background: #e5e7eb;">
+                                    <img id="modal-map-image" src="" alt="Location Map" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                    <div id="modal-map-loading" style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--gray-600);">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading map...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 2rem 2rem; background: white; justify-content: space-between;">
+                    <button type="button" class="btn btn-primary" onclick="shareIncident()" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; min-width: 120px;">
+                        <i class="fas fa-share-alt me-2"></i>Share
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: var(--gray-200); color: var(--gray-700); border: none; min-width: 120px;">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Incident Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; padding: 1.75rem 2rem; color: white;">
+                    <h5 class="modal-title" id="shareModalLabel" style="font-family: 'Sora', sans-serif; font-weight: 600; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                        <i class="fas fa-share-alt" style="font-size: 1.5rem;"></i>
+                        Share Incident
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem; background: white;">
+                    <p style="text-align: center; color: var(--gray-700); margin-bottom: 1.5rem; font-size: 0.95rem;">
+                        Choose how you want to share this incident information
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <button onclick="shareViaEmail()" class="w-100" style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-envelope" style="font-size: 2rem; color: #3b82f6;"></i>
+                                <span style="font-weight: 600; color: var(--gray-800);">Email</span>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button onclick="shareViaWhatsApp()" class="w-100" style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <i class="fab fa-whatsapp" style="font-size: 2rem; color: #25d366;"></i>
+                                <span style="font-weight: 600; color: var(--gray-800);">WhatsApp</span>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button onclick="shareViaTelegram()" class="w-100" style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <i class="fab fa-telegram" style="font-size: 2rem; color: #0088cc;"></i>
+                                <span style="font-weight: 600; color: var(--gray-800);">Telegram</span>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button onclick="copyToClipboard()" class="w-100" style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem 1rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-copy" style="font-size: 2rem; color: #8b5cf6;"></i>
+                                <span style="font-weight: 600; color: var(--gray-800);">Copy Link</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Logout Confirmation Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
@@ -693,20 +1345,75 @@
             <div class="top-row">
                 <!-- Live CCTV Feed (LEFT SIDE) -->
                 <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-video me-2"></i>Live CCTV Video Feed
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-video me-2"></i>Live CCTV Video Feed
+                        </div>
+                        <button id="video-control-btn" class="btn btn-sm btn-success" onclick="toggleVideoFeed()" style="display: none;">
+                            <i class="fas fa-pause"></i> <span id="video-status">Pause Detection</span>
+                        </button>
+                        <button id="stop-monitoring-btn" class="btn btn-sm btn-danger" onclick="stopMonitoring()" style="display: none;">
+                            <i class="fas fa-stop"></i> Stop Monitoring
+                        </button>
                     </div>
                     <div class="card-body p-2">
-                        <div class="video-container">
-                            <div class="live-indicator">
-                                <div class="live-dot"></div>
-                                LIVE
+                        {% if user_role == 'admin' %}
+                        <!-- Admin: Start Monitoring Screen with Live Detection -->
+                        <div id="start-monitoring-screen" class="video-container" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                            <div style="text-align: center; color: white; padding: 3rem;">
+                                <i class="fas fa-play-circle" style="font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.9;"></i>
+                                <h3 style="font-family: 'Sora', sans-serif; font-weight: 600; margin-bottom: 1rem;">Ready to Monitor</h3>
+                                <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9;">Click below to start accident detection and monitoring</p>
+                                <button class="btn btn-lg" onclick="startMonitoring()" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); color: white; padding: 1rem 3rem; font-size: 1.2rem; font-weight: 600; border: none; border-radius: 12px; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3); transition: all 0.3s ease;">
+                                    <i class="fas fa-video me-2"></i>Start Monitoring
+                                </button>
                             </div>
-                            <video id="cctv-feed" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;">
-                                <source src="{{ url_for('static', filename='CCTV.mp4') }}" type="video/mp4">
-                                <p style="color: white; padding: 20px; text-align: center;">Your browser does not support the video tag.</p>
-                            </video>
                         </div>
+                        
+                        <!-- Video Feed (Initially Hidden) -->
+                        <div id="video-feed-container" class="video-container" style="display: none;">
+                            <div class="live-indicator" id="live-indicator">
+                                <div class="live-dot"></div>
+                                LIVE DETECTION
+                            </div>
+                            <img id="cctv-feed" src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Live YOLOv10 Detection Feed">
+                        </div>
+                        
+                        {% elif username == 'traffic_authority' %}
+                        <!-- Traffic Authority: CCTV Video with Play/Pause Controls -->
+                        <div class="video-container" style="position: relative;">
+                            <video id="cctv-video-ta" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                                <source src="{{ url_for('cctv_video', filename='CCTV.mp4') }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <!-- Video Controls for Traffic Authority -->
+                            <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 10;">
+                                <button id="play-pause-btn" class="btn btn-success" onclick="toggleCCTVPlayback()" style="padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                                    <i class="fas fa-pause" id="play-pause-icon"></i>
+                                    <span id="play-pause-text" style="margin-left: 8px;">Pause</span>
+                                </button>
+                                <button class="btn btn-info" onclick="restartCCTV()" style="padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                                    <i class="fas fa-redo"></i>
+                                    <span style="margin-left: 8px;">Restart</span>
+                                </button>
+                            </div>
+                            <div style="position: absolute; top: 10px; right: 10px; background: rgba(34, 197, 94, 0.9); color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;">
+                                <i class="fas fa-user-shield me-2"></i>Traffic Authority
+                            </div>
+                        </div>
+                        
+                        {% else %}
+                        <!-- Others: CCTV Video (View Only - No Controls) -->
+                        <div class="video-container">
+                            <video autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;">
+                                <source src="{{ url_for('cctv_video', filename='CCTV.mp4') }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;">
+                                <i class="fas fa-eye me-2"></i>View Only Mode
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -717,7 +1424,9 @@
                     </div>
                     <div class="card-body p-2">
                         <div class="map-container">
-                            <div id="map"></div>
+                            <div id="map" 
+                                data-user-lat="{{ user_latitude if user_latitude else '' }}" 
+                                data-user-lon="{{ user_longitude if user_longitude else '' }}"></div>
                         </div>
                     </div>
                 </div>
@@ -730,6 +1439,15 @@
                     <div class="card-header">
                         <i class="fas fa-exclamation-triangle me-2"></i>Active Incidents
                         <span class="badge bg-danger ms-2" id="incident-count">0</span>
+                        {% if user_city and user_city != 'All Locations' %}
+                        <span class="badge bg-info ms-2" title="Showing incidents from your area">
+                            <i class="fas fa-map-marker-alt"></i> {{ user_city }}
+                        </span>
+                        {% elif user_role == 'admin' %}
+                        <span class="badge bg-success ms-2" title="Admin view - showing all locations">
+                            <i class="fas fa-globe"></i> All Locations
+                        </span>
+                        {% endif %}
                     </div>
                     <div class="card-body">
                         <div class="incidents-container" id="incidents-container">
@@ -752,6 +1470,7 @@
             </div>
 
             <!-- Bottom Row: Quick Actions -->
+            {% if user_role in ['admin', 'operator'] %}
             <div class="card">
                 <div class="card-header">
                     <i class="fas fa-bolt me-2"></i>Quick Actions
@@ -773,6 +1492,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 
@@ -819,13 +1539,24 @@
         updateMalaysianTime();
         setInterval(updateMalaysianTime, 1000);
         
-        // Initialize Map
-        let map = L.map('map').setView([3.139, 101.6869], 12); // Kuala Lumpur coordinates
+        // Initialize Map - Center on user's city if available, otherwise Malaysia view
+        var mapElement = document.getElementById('map');
+        var userLat = parseFloat(mapElement.getAttribute('data-user-lat'));
+        var userLon = parseFloat(mapElement.getAttribute('data-user-lon'));
+        
+        var centerLat = (userLat && !isNaN(userLat)) ? userLat : 4.2105;
+        var centerLon = (userLon && !isNaN(userLon)) ? userLon : 101.9758;
+        var zoomLevel = (userLat && !isNaN(userLat)) ? 12 : 7;
+        
+        var map = L.map('map').setView([centerLat, centerLon], zoomLevel);
+        window.map = map; // Make it globally accessible
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(map);
+        
+        console.log('Map initialized:', map);
         
         // Create custom emoji icon function
         function createEmojiIcon(emoji, bgColor = 'white') {
@@ -838,60 +1569,224 @@
             });
         }
         
-        // Sample incident markers (accidents)
-        const incidents = [
-            { lat: 3.1390, lng: 101.6869, id: '#1001', severity: 'high', type: 'accident' },
-            { lat: 3.0738, lng: 101.5183, id: '#1002', severity: 'medium', type: 'accident' },
-            { lat: 3.0669, lng: 101.5030, id: '#1003', severity: 'critical', type: 'accident' }
-        ];
+        // Accident Incidents - Will be loaded dynamically from API (no static incidents)
+        const incidents = [];
         
-        // Hospitals in Kuala Lumpur
+        // Hospitals in Malaysia
         const hospitals = [
-            { lat: 3.1466, lng: 101.6958, name: 'Hospital Kuala Lumpur', type: 'hospital', emoji: '🏥' },
-            { lat: 3.1216, lng: 101.6554, name: 'Hospital Tung Shin', type: 'hospital', emoji: '🏥' },
-            { lat: 3.1535, lng: 101.7000, name: 'University Malaya Medical Centre', type: 'hospital', emoji: '🏥' },
-            { lat: 3.2032, lng: 101.7267, name: 'Hospital Ampang Puteri', type: 'hospital', emoji: '🏥' },
-            { lat: 3.0883, lng: 101.6808, name: 'Hospital Pantai Bangsar', type: 'hospital', emoji: '🏥' },
-            { lat: 3.1738, lng: 101.7134, name: 'Hospital Gleneagles KL', type: 'hospital', emoji: '🏥' },
-            { lat: 3.0489, lng: 101.5931, name: 'Hospital Serdang', type: 'hospital', emoji: '🏥' },
-            { lat: 3.2157, lng: 101.7263, name: 'Columbia Asia Hospital', type: 'hospital', emoji: '🏥' }
+            // Kuala Lumpur & Selangor
+            { lat: 3.1466, lng: 101.6958, name: 'Hospital Kuala Lumpur', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1216, lng: 101.6554, name: 'Hospital Tung Shin', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1535, lng: 101.7000, name: 'University Malaya Medical Centre', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.2032, lng: 101.7267, name: 'Hospital Ampang', city: 'Selangor', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0883, lng: 101.6808, name: 'Hospital Pantai Bangsar', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1738, lng: 101.7134, name: 'Hospital Gleneagles KL', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0489, lng: 101.5931, name: 'Hospital Serdang', city: 'Selangor', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.2157, lng: 101.7263, name: 'Columbia Asia Hospital - Setapak', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0644, lng: 101.5264, name: 'Hospital Universiti Malaya', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.2027, lng: 101.5828, name: 'Hospital Selayang', city: 'Selangor', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0461, lng: 101.5309, name: 'Hospital Sungai Buloh', city: 'Selangor', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 2.9899, lng: 101.7829, name: 'Hospital Kajang', city: 'Selangor', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.0173, lng: 101.5320, name: 'Hospital Subang Jaya Medical Centre', city: 'Selangor', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 3.1478, lng: 101.6953, name: 'Hospital Kuala Lumpur (Pusat Jantung)', city: 'Kuala Lumpur', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Penang
+            { lat: 5.4164, lng: 100.3327, name: 'Hospital Pulau Pinang', city: 'Penang', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 5.3567, lng: 100.3025, name: 'Loh Guan Lye Specialists Centre', city: 'Penang', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 5.4141, lng: 100.3288, name: 'Penang Adventist Hospital', city: 'Penang', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Johor
+            { lat: 1.4927, lng: 103.7414, name: 'Hospital Sultanah Aminah', city: 'Johor Bahru', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 1.5458, lng: 103.6318, name: 'KPJ Johor Specialist Hospital', city: 'Johor Bahru', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 2.0381, lng: 103.3861, name: 'Hospital Sultanah Nora Ismail', city: 'Batu Pahat', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Melaka
+            { lat: 2.1896, lng: 102.2501, name: 'Hospital Melaka', city: 'Melaka', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Perak
+            { lat: 4.5975, lng: 101.0901, name: 'Hospital Raja Permaisuri Bainun', city: 'Ipoh', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 4.2233, lng: 100.9829, name: 'Hospital Taiping', city: 'Taiping', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Pahang
+            { lat: 3.8077, lng: 103.3260, name: 'Hospital Tengku Ampuan Afzan', city: 'Kuantan', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Terengganu
+            { lat: 5.3302, lng: 103.1408, name: 'Hospital Sultanah Nur Zahirah', city: 'Kuala Terengganu', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Kelantan
+            { lat: 6.1256, lng: 102.2381, name: 'Hospital Raja Perempuan Zaid II', city: 'Kota Bharu', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Kedah
+            { lat: 6.1248, lng: 100.3678, name: 'Hospital Sultanah Bahiyah', city: 'Alor Setar', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Sabah
+            { lat: 5.9788, lng: 116.0753, name: 'Hospital Queen Elizabeth', city: 'Kota Kinabalu', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 5.2789, lng: 115.2417, name: 'Hospital Duchess of Kent', city: 'Sandakan', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Sarawak
+            { lat: 1.5535, lng: 110.3593, name: 'Sarawak General Hospital', city: 'Kuching', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            { lat: 2.6154, lng: 113.9854, name: 'Hospital Miri', city: 'Miri', country: 'Malaysia', type: 'hospital', emoji: '🏥' },
+            
+            // Negeri Sembilan
+            { lat: 2.7258, lng: 101.9424, name: 'Hospital Tuanku Jaafar', city: 'Seremban', country: 'Malaysia', type: 'hospital', emoji: '🏥' }
         ];
         
-        // Real Police Stations in Malaysia (Kuala Lumpur & Selangor)
+        // Police Stations in Malaysia
         const policeStations = [
+            // Royal Malaysia Police HQ
+            { lat: 3.1419, lng: 101.6935, name: 'Royal Malaysia Police HQ (Bukit Aman)', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
             // Kuala Lumpur Police Stations
-            { lat: 3.1419, lng: 101.6935, name: 'IPD Dang Wangi (Police HQ)', type: 'police', emoji: '👮' },
-            { lat: 3.1850, lng: 101.6783, name: 'Balai Polis Sentul', type: 'police', emoji: '👮' },
-            { lat: 3.1583, lng: 101.7119, name: 'Balai Polis KLCC', type: 'police', emoji: '👮' },
-            { lat: 3.1328, lng: 101.6810, name: 'Balai Polis Chow Kit', type: 'police', emoji: '👮' },
-            { lat: 3.1050, lng: 101.6750, name: 'Balai Polis Brickfields', type: 'police', emoji: '👮' },
-            { lat: 3.0911, lng: 101.7044, name: 'Balai Polis Pudu', type: 'police', emoji: '👮' },
-            { lat: 3.1120, lng: 101.6280, name: 'Balai Polis Bangsar', type: 'police', emoji: '👮' },
-            { lat: 3.1477, lng: 101.7389, name: 'IPD Ampang Jaya', type: 'police', emoji: '👮' },
-            { lat: 3.0738, lng: 101.6017, name: 'Balai Polis Setia Alam', type: 'police', emoji: '👮' },
-            { lat: 3.1267, lng: 101.6419, name: 'Balai Polis Tun H.S. Lee', type: 'police', emoji: '👮' },
-            { lat: 3.1544, lng: 101.6586, name: 'Balai Polis Titiwangsa', type: 'police', emoji: '👮' },
-            { lat: 3.0644, lng: 101.5264, name: 'IPD Petaling Jaya', type: 'police', emoji: '👮' },
-            { lat: 3.0228, lng: 101.5317, name: 'Balai Polis Subang Jaya', type: 'police', emoji: '👮' },
-            { lat: 3.0481, lng: 101.5978, name: 'Balai Polis Serdang', type: 'police', emoji: '👮' },
-            { lat: 2.9917, lng: 101.7972, name: 'IPD Kajang', type: 'police', emoji: '👮' },
-            { lat: 3.2192, lng: 101.7289, name: 'Balai Polis Wangsa Maju', type: 'police', emoji: '👮' },
-            { lat: 3.0328, lng: 101.6494, name: 'Balai Polis Bukit Jalil', type: 'police', emoji: '👮' },
-            { lat: 3.2611, lng: 101.6906, name: 'IPD Gombak', type: 'police', emoji: '👮' },
-            { lat: 2.7297, lng: 101.9381, name: 'IPD Sepang', type: 'police', emoji: '👮' },
-            { lat: 3.3083, lng: 101.5500, name: 'IPD Sungai Buloh', type: 'police', emoji: '👮' }
+            { lat: 3.1419, lng: 101.6935, name: 'IPD Dang Wangi', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1850, lng: 101.6783, name: 'Balai Polis Sentul', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1583, lng: 101.7119, name: 'Balai Polis KLCC', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1328, lng: 101.6810, name: 'Balai Polis Chow Kit', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1050, lng: 101.6750, name: 'Balai Polis Brickfields', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.0911, lng: 101.7044, name: 'Balai Polis Pudu', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1120, lng: 101.6280, name: 'Balai Polis Bangsar', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1544, lng: 101.6586, name: 'Balai Polis Titiwangsa', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1267, lng: 101.6419, name: 'Balai Polis Tun H.S. Lee', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Selangor Police Stations
+            { lat: 3.1477, lng: 101.7389, name: 'IPD Ampang Jaya', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.0644, lng: 101.5264, name: 'IPD Petaling Jaya', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.0228, lng: 101.5317, name: 'Balai Polis Subang Jaya', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.0481, lng: 101.5978, name: 'Balai Polis Serdang', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.9917, lng: 101.7972, name: 'IPD Kajang', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.2192, lng: 101.7289, name: 'Balai Polis Wangsa Maju', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.2611, lng: 101.6906, name: 'IPD Gombak', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.7297, lng: 101.9381, name: 'IPD Sepang', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.3083, lng: 101.5500, name: 'IPD Sungai Buloh', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.0738, lng: 101.6017, name: 'Balai Polis Setia Alam', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.2059, lng: 101.5828, name: 'Balai Polis Selayang', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.0687, lng: 101.4458, name: 'Balai Polis Shah Alam', city: 'Selangor', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.1446, lng: 101.6103, name: 'IPD Sentul', city: 'Kuala Lumpur', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Johor
+            { lat: 1.4655, lng: 103.7578, name: 'IPD Johor Bahru Selatan', city: 'Johor Bahru', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 1.5381, lng: 103.7880, name: 'IPD Johor Bahru Utara', city: 'Johor Bahru', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.0381, lng: 103.3861, name: 'IPD Batu Pahat', city: 'Batu Pahat', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 1.8481, lng: 103.0909, name: 'IPD Muar', city: 'Muar', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Penang
+            { lat: 5.4141, lng: 100.3288, name: 'IPD Timur Laut', city: 'Penang', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 5.3394, lng: 100.2770, name: 'IPD Barat Daya', city: 'Penang', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 5.3595, lng: 100.4681, name: 'IPD Seberang Perai Tengah', city: 'Penang', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Perak
+            { lat: 4.5975, lng: 101.0901, name: 'IPD Ipoh', city: 'Ipoh', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 4.2233, lng: 100.9829, name: 'IPD Taiping', city: 'Taiping', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.8167, lng: 100.9167, name: 'IPD Teluk Intan', city: 'Teluk Intan', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Pahang
+            { lat: 3.8077, lng: 103.3260, name: 'IPD Kuantan', city: 'Kuantan', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.4648, lng: 103.3852, name: 'IPD Pekan', city: 'Pekan', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 3.4023, lng: 101.9501, name: 'IPD Bentong', city: 'Bentong', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Melaka
+            { lat: 2.1896, lng: 102.2501, name: 'IPD Melaka Tengah', city: 'Melaka', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.2531, lng: 102.4331, name: 'IPD Alor Gajah', city: 'Alor Gajah', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Negeri Sembilan
+            { lat: 2.7258, lng: 101.9424, name: 'IPD Seremban', city: 'Seremban', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.4634, lng: 102.0857, name: 'IPD Port Dickson', city: 'Port Dickson', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Terengganu
+            { lat: 5.3302, lng: 103.1408, name: 'IPD Kuala Terengganu', city: 'Kuala Terengganu', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 4.7333, lng: 103.4333, name: 'IPD Kemaman', city: 'Kemaman', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Kelantan
+            { lat: 6.1256, lng: 102.2381, name: 'IPD Kota Bharu', city: 'Kota Bharu', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 5.8333, lng: 102.1333, name: 'IPD Pasir Mas', city: 'Pasir Mas', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Kedah
+            { lat: 6.1248, lng: 100.3678, name: 'IPD Kota Setar', city: 'Alor Setar', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 6.1333, lng: 100.2667, name: 'IPD Kuala Muda', city: 'Sungai Petani', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Perlis
+            { lat: 6.4449, lng: 100.2048, name: 'IPD Perlis', city: 'Kangar', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Sabah
+            { lat: 5.9788, lng: 116.0753, name: 'IPD Kota Kinabalu', city: 'Kota Kinabalu', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 5.2789, lng: 115.2417, name: 'IPD Sandakan', city: 'Sandakan', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 4.4018, lng: 118.0091, name: 'IPD Tawau', city: 'Tawau', country: 'Malaysia', type: 'police', emoji: '👮' },
+            
+            // Sarawak
+            { lat: 1.5535, lng: 110.3593, name: 'IPD Kuching', city: 'Kuching', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.6154, lng: 113.9854, name: 'IPD Miri', city: 'Miri', country: 'Malaysia', type: 'police', emoji: '👮' },
+            { lat: 2.2953, lng: 111.8267, name: 'IPD Sibu', city: 'Sibu', country: 'Malaysia', type: 'police', emoji: '👮' }
         ];
         
-        // Mobile Ambulances (stationary - fake locations)
+        // Mobile Ambulances in Malaysia (stationary - fake locations)
         const mobileAmbulances = [
-            { lat: 3.1500, lng: 101.6800, id: 'AMB-001', status: 'Available', location: 'KLCC Area', emoji: '🚑' },
-            { lat: 3.1100, lng: 101.7000, id: 'AMB-002', status: 'Available', location: 'Cheras Area', emoji: '🚑' },
-            { lat: 3.0900, lng: 101.6600, id: 'AMB-003', status: 'On Standby', location: 'Bangsar Area', emoji: '🚑' },
-            { lat: 3.1700, lng: 101.7200, id: 'AMB-004', status: 'Available', location: 'Ampang Area', emoji: '🚑' },
-            { lat: 3.1300, lng: 101.6500, id: 'AMB-005', status: 'On Standby', location: 'Bukit Bintang Area', emoji: '🚑' },
-            { lat: 3.2000, lng: 101.7100, id: 'AMB-006', status: 'Available', location: 'Wangsa Maju Area', emoji: '🚑' },
-            { lat: 3.0650, lng: 101.5950, id: 'AMB-007', status: 'Available', location: 'Serdang Area', emoji: '🚑' },
-            { lat: 3.0400, lng: 101.5250, id: 'AMB-008', status: 'On Standby', location: 'Petaling Jaya Area', emoji: '🚑' }
+            // Kuala Lumpur & Selangor
+            { lat: 3.1500, lng: 101.6800, id: 'AMB-KL-001', status: 'Available', location: 'KLCC Area, Kuala Lumpur', emoji: '🚑' },
+            { lat: 3.1100, lng: 101.7000, id: 'AMB-KL-002', status: 'En Route', location: 'Cheras, Kuala Lumpur', emoji: '🚑' },
+            { lat: 3.0900, lng: 101.6600, id: 'AMB-KL-003', status: 'On Standby', location: 'Bangsar, Kuala Lumpur', emoji: '🚑' },
+            { lat: 3.1700, lng: 101.7200, id: 'AMB-SEL-001', status: 'Available', location: 'Ampang, Selangor', emoji: '🚑' },
+            { lat: 3.1300, lng: 101.6500, id: 'AMB-KL-004', status: 'Available', location: 'Bukit Bintang, Kuala Lumpur', emoji: '🚑' },
+            { lat: 3.2000, lng: 101.7100, id: 'AMB-SEL-002', status: 'On Standby', location: 'Wangsa Maju, Selangor', emoji: '🚑' },
+            { lat: 3.0650, lng: 101.5950, id: 'AMB-SEL-003', status: 'Available', location: 'Serdang, Selangor', emoji: '🚑' },
+            { lat: 3.0400, lng: 101.5250, id: 'AMB-SEL-004', status: 'En Route', location: 'Petaling Jaya, Selangor', emoji: '🚑' },
+            { lat: 3.0150, lng: 101.5300, id: 'AMB-SEL-005', status: 'Available', location: 'Subang Jaya, Selangor', emoji: '🚑' },
+            { lat: 3.0687, lng: 101.4458, id: 'AMB-SEL-006', status: 'Available', location: 'Shah Alam, Selangor', emoji: '🚑' },
+            { lat: 2.9899, lng: 101.7829, id: 'AMB-SEL-007', status: 'On Standby', location: 'Kajang, Selangor', emoji: '🚑' },
+            { lat: 3.2059, lng: 101.5828, id: 'AMB-SEL-008', status: 'Available', location: 'Selayang, Selangor', emoji: '🚑' },
+            
+            // Johor
+            { lat: 1.4927, lng: 103.7414, id: 'AMB-JHR-001', status: 'Available', location: 'Johor Bahru, Johor', emoji: '🚑' },
+            { lat: 1.5381, lng: 103.7880, id: 'AMB-JHR-002', status: 'En Route', location: 'Skudai, Johor', emoji: '🚑' },
+            { lat: 2.0381, lng: 103.3861, id: 'AMB-JHR-003', status: 'Available', location: 'Batu Pahat, Johor', emoji: '🚑' },
+            { lat: 1.8481, lng: 103.0909, id: 'AMB-JHR-004', status: 'On Standby', location: 'Muar, Johor', emoji: '🚑' },
+            
+            // Penang
+            { lat: 5.4164, lng: 100.3327, id: 'AMB-PNG-001', status: 'Available', location: 'Georgetown, Penang', emoji: '🚑' },
+            { lat: 5.3567, lng: 100.3025, id: 'AMB-PNG-002', status: 'Available', location: 'Bayan Lepas, Penang', emoji: '🚑' },
+            { lat: 5.3394, lng: 100.2770, id: 'AMB-PNG-003', status: 'En Route', location: 'Balik Pulau, Penang', emoji: '🚑' },
+            { lat: 5.3595, lng: 100.4681, id: 'AMB-PNG-004', status: 'On Standby', location: 'Butterworth, Penang', emoji: '🚑' },
+            
+            // Perak
+            { lat: 4.5975, lng: 101.0901, id: 'AMB-PRK-001', status: 'Available', location: 'Ipoh, Perak', emoji: '🚑' },
+            { lat: 4.2233, lng: 100.9829, id: 'AMB-PRK-002', status: 'Available', location: 'Taiping, Perak', emoji: '🚑' },
+            { lat: 3.8167, lng: 100.9167, id: 'AMB-PRK-003', status: 'On Standby', location: 'Teluk Intan, Perak', emoji: '🚑' },
+            
+            // Pahang
+            { lat: 3.8077, lng: 103.3260, id: 'AMB-PHG-001', status: 'Available', location: 'Kuantan, Pahang', emoji: '🚑' },
+            { lat: 3.4648, lng: 103.3852, id: 'AMB-PHG-002', status: 'En Route', location: 'Pekan, Pahang', emoji: '🚑' },
+            { lat: 3.4023, lng: 101.9501, id: 'AMB-PHG-003', status: 'Available', location: 'Bentong, Pahang', emoji: '🚑' },
+            
+            // Melaka
+            { lat: 2.1896, lng: 102.2501, id: 'AMB-MLK-001', status: 'Available', location: 'Melaka City, Melaka', emoji: '🚑' },
+            { lat: 2.2531, lng: 102.4331, id: 'AMB-MLK-002', status: 'On Standby', location: 'Alor Gajah, Melaka', emoji: '🚑' },
+            
+            // Negeri Sembilan
+            { lat: 2.7258, lng: 101.9424, id: 'AMB-NSN-001', status: 'Available', location: 'Seremban, Negeri Sembilan', emoji: '🚑' },
+            { lat: 2.4634, lng: 102.0857, id: 'AMB-NSN-002', status: 'Available', location: 'Port Dickson, Negeri Sembilan', emoji: '🚑' },
+            
+            // Terengganu
+            { lat: 5.3302, lng: 103.1408, id: 'AMB-TRG-001', status: 'Available', location: 'Kuala Terengganu, Terengganu', emoji: '🚑' },
+            { lat: 4.7333, lng: 103.4333, id: 'AMB-TRG-002', status: 'En Route', location: 'Kemaman, Terengganu', emoji: '🚑' },
+            
+            // Kelantan
+            { lat: 6.1256, lng: 102.2381, id: 'AMB-KTN-001', status: 'Available', location: 'Kota Bharu, Kelantan', emoji: '🚑' },
+            { lat: 5.8333, lng: 102.1333, id: 'AMB-KTN-002', status: 'On Standby', location: 'Pasir Mas, Kelantan', emoji: '🚑' },
+            
+            // Kedah
+            { lat: 6.1248, lng: 100.3678, id: 'AMB-KDH-001', status: 'Available', location: 'Alor Setar, Kedah', emoji: '🚑' },
+            { lat: 6.1333, lng: 100.2667, id: 'AMB-KDH-002', status: 'Available', location: 'Sungai Petani, Kedah', emoji: '🚑' },
+            
+            // Perlis
+            { lat: 6.4449, lng: 100.2048, id: 'AMB-PLS-001', status: 'On Standby', location: 'Kangar, Perlis', emoji: '🚑' },
+            
+            // Sabah
+            { lat: 5.9788, lng: 116.0753, id: 'AMB-SBH-001', status: 'Available', location: 'Kota Kinabalu, Sabah', emoji: '🚑' },
+            { lat: 5.2789, lng: 115.2417, id: 'AMB-SBH-002', status: 'En Route', location: 'Sandakan, Sabah', emoji: '🚑' },
+            { lat: 4.4018, lng: 118.0091, id: 'AMB-SBH-003', status: 'Available', location: 'Tawau, Sabah', emoji: '🚑' },
+            
+            // Sarawak
+            { lat: 1.5535, lng: 110.3593, id: 'AMB-SWK-001', status: 'Available', location: 'Kuching, Sarawak', emoji: '🚑' },
+            { lat: 2.6154, lng: 113.9854, id: 'AMB-SWK-002', status: 'Available', location: 'Miri, Sarawak', emoji: '🚑' },
+            { lat: 2.2953, lng: 111.8267, id: 'AMB-SWK-003', status: 'On Standby', location: 'Sibu, Sarawak', emoji: '🚑' }
         ];
         
         // Combine all emergency services
@@ -932,7 +1827,8 @@
             marker.bindPopup(`
                 <div style="font-family: 'Inter', sans-serif;">
                     <b>${service.emoji} ${service.name}</b><br>
-                    <span style="text-transform: capitalize; color: #6b7280;">${service.type}</span>
+                    <span style="color: #3b82f6; font-weight: 500;">${service.city}, ${service.country}</span><br>
+                    <span style="text-transform: capitalize; color: #6b7280; font-size: 0.85rem;">${service.type}</span>
                 </div>
             `);
         });
@@ -958,7 +1854,10 @@
             `);
         });
 
-        // Load incidents from server
+        // Store incident markers for updating
+        let incidentMarkers = [];
+        
+        // Load incidents from server and update map
         async function loadIncidents() {
             try {
                 const response = await fetch('/api/incidents');
@@ -968,11 +1867,45 @@
                 const countBadge = document.getElementById('incident-count');
                 container.innerHTML = '';
                 
+                // Clear existing incident markers from map
+                incidentMarkers.forEach(marker => map.removeLayer(marker));
+                incidentMarkers = [];
+                
                 if (data.incidents && data.incidents.length > 0) {
                     countBadge.textContent = data.incidents.length;
-                    data.incidents.forEach(incident => {
-                        const card = createIncidentCard(incident);
+                    
+                    // Sort incidents: LATEST first (already sorted by timestamp DESC from backend)
+                    // No need to re-sort - they come from backend in newest-to-oldest order
+                    
+                    data.incidents.forEach((incident, index) => {
+                        const card = createIncidentCard(incident, index);
                         container.innerHTML += card;
+                        
+                        // Add marker to map if coordinates are available
+                        if (incident.lat && incident.lon && incident.lat !== 0 && incident.lon !== 0) {
+                            const color = incident.severity?.toLowerCase() === 'critical' ? '#dc2626' : 
+                                         incident.severity?.toLowerCase() === 'high' ? '#f59e0b' : '#3b82f6';
+                            
+                            const accidentIcon = createEmojiIcon('⚠️', color);
+                            
+                            const marker = L.marker([incident.lat, incident.lon], {
+                                icon: accidentIcon
+                            }).addTo(map);
+                            
+                            marker.bindPopup(`
+                                <div style="font-family: 'Inter', sans-serif;">
+                                    <b style="color: ${color};">🚨 ${incident.id}</b><br>
+                                    <strong>Type:</strong> ${incident.type || 'Road Accident'}<br>
+                                    <strong>Severity:</strong> ${incident.severity?.toUpperCase() || 'UNKNOWN'}<br>
+                                    <strong>Status:</strong> ${incident.status || 'Pending'}<br>
+                                    <strong>Time:</strong> ${incident.timestamp || 'N/A'}<br>
+                                    ${incident.confidence ? `<strong>Confidence:</strong> ${(incident.confidence * 100).toFixed(0)}%<br>` : ''}
+                                    <small>📍 ${incident.location || 'Unknown location'}</small>
+                                </div>
+                            `);
+                            
+                            incidentMarkers.push(marker);
+                        }
                     });
                 } else {
                     countBadge.textContent = '0';
@@ -986,15 +1919,27 @@
         }
 
         // Create incident card HTML
-        function createIncidentCard(incident) {
+        function createIncidentCard(incident, index) {
             const severityClass = `severity-${incident.severity?.toLowerCase() || 'medium'}`;
             const statusClass = `status-${incident.status?.toLowerCase().replace(' ', '-') || 'pending'}`;
             const badgeClass = `badge-${incident.severity?.toLowerCase() || 'medium'}`;
             
+            // Store incident data as JSON in data attribute
+            const incidentData = JSON.stringify(incident).replace(/"/g, '&quot;');
+            
+            // Check if incident is unresolved
+            const isUnresolved = ['pending', 'confirmed', 'active'].includes(incident.status?.toLowerCase());
+            
+            // Only the FIRST incident (latest) should be highlighted
+            const isLatest = (index === 0 && isUnresolved);
+            
             return `
-                <div class="incident-card ${severityClass} ${statusClass}">
+                <div class="incident-card ${severityClass} ${isLatest ? statusClass : ''}" onclick='showIncidentDetails(${incidentData})' style="cursor: pointer; ${isLatest ? 'border-left-width: 8px;' : ''}">
                     <div class="incident-header">
-                        <div class="incident-id">${incident.id || 'N/A'}</div>
+                        <div class="incident-id">
+                            ${isLatest ? '<i class="fas fa-exclamation-circle me-2" style="color: #dc2626; animation: spin 2s linear infinite;"></i>' : ''}
+                            ${incident.id || 'N/A'}
+                        </div>
                         <span class="incident-badge ${badgeClass}">
                             ${incident.severity || 'Unknown'}
                         </span>
@@ -1011,8 +1956,102 @@
                         <i class="fas fa-info-circle"></i>
                         <span>Status: ${incident.status || 'Pending'}</span>
                     </div>
+                    <div style="text-align: right; margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-600); font-style: italic;">
+                        <i class="fas fa-hand-pointer me-1"></i>Click for details
+                    </div>
                 </div>
             `;
+        }
+
+        // Show incident details in modal
+        function showIncidentDetails(incident) {
+            console.log('Showing incident details:', incident);
+            
+            // Update modal content
+            document.getElementById('modal-incident-title').textContent = `Incident ${incident.id || 'Details'}`;
+            document.getElementById('modal-incident-id').textContent = incident.id || 'N/A';
+            document.getElementById('modal-incident-severity').textContent = incident.severity || 'Unknown';
+            document.getElementById('modal-incident-status').textContent = incident.status || 'Pending';
+            document.getElementById('modal-incident-type').textContent = incident.type || 'Accident';
+            document.getElementById('modal-incident-location').textContent = incident.location || 'Unknown location';
+            document.getElementById('modal-incident-timestamp').textContent = incident.timestamp || 'N/A';
+            
+            // Confidence
+            if (incident.confidence) {
+                const confidencePercent = (incident.confidence * 100).toFixed(1);
+                document.getElementById('modal-incident-confidence').textContent = `${confidencePercent}%`;
+            } else {
+                document.getElementById('modal-incident-confidence').textContent = 'N/A';
+            }
+            
+            // City
+            if (incident.city) {
+                document.getElementById('modal-incident-city').textContent = incident.city;
+                document.getElementById('modal-incident-city-container').style.display = 'block';
+            } else {
+                document.getElementById('modal-incident-city-container').style.display = 'none';
+            }
+            
+            // GPS Coordinates and Map
+            if (incident.lat && incident.lon && incident.lat !== 0 && incident.lon !== 0) {
+                document.getElementById('modal-incident-coordinates').textContent = `${incident.lat.toFixed(6)}, ${incident.lon.toFixed(6)}`;
+                document.getElementById('modal-incident-coordinates-container').style.display = 'block';
+                
+                // Show map container
+                document.getElementById('modal-incident-map-container').style.display = 'block';
+                
+                // Load OpenStreetMap static image
+                const zoom = 15;
+                const width = 800;
+                const height = 300;
+                
+                // Using OpenStreetMap static map via Leaflet marker
+                const mapImageUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l-rocket+f74e4e(${incident.lon},${incident.lat})/${incident.lon},${incident.lat},${zoom},0/${width}x${height}@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`;
+                
+                // Fallback to OpenStreetMap tile-based image
+                const osmMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${incident.lat},${incident.lon}&zoom=${zoom}&size=${width}x${height}&markers=${incident.lat},${incident.lon},red-pushpin`;
+                
+                // Show loading state
+                document.getElementById('modal-map-loading').style.display = 'flex';
+                document.getElementById('modal-map-image').style.display = 'none';
+                
+                // Try to load map image
+                const mapImg = document.getElementById('modal-map-image');
+                mapImg.onload = function() {
+                    document.getElementById('modal-map-loading').style.display = 'none';
+                    mapImg.style.display = 'block';
+                };
+                mapImg.onerror = function() {
+                    // Fallback: Show a Google Maps link instead
+                    document.getElementById('modal-map-loading').innerHTML = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                            <p style="margin: 0;">Map preview unavailable</p>
+                            <a href="https://www.google.com/maps?q=${incident.lat},${incident.lon}" target="_blank" class="btn btn-sm btn-primary mt-2" style="background: linear-gradient(135deg, var(--navy-blue) 0%, var(--red-alert) 100%); border: none; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                                <i class="fas fa-external-link-alt me-2"></i>Open in Google Maps
+                            </a>
+                        </div>
+                    `;
+                };
+                mapImg.src = osmMapUrl;
+            } else {
+                document.getElementById('modal-incident-coordinates-container').style.display = 'none';
+                document.getElementById('modal-incident-map-container').style.display = 'none';
+            }
+            
+            // Color code severity
+            const severityElement = document.getElementById('modal-incident-severity');
+            const severityColors = {
+                'critical': '#dc2626',
+                'high': '#f59e0b',
+                'medium': '#3b82f6',
+                'low': '#10b981'
+            };
+            severityElement.style.color = severityColors[incident.severity?.toLowerCase()] || '#374151';
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('incidentModal'));
+            modal.show();
         }
 
         // Load notifications
@@ -1041,20 +2080,44 @@
 
         // Create notification item HTML
         function createNotificationItem(notification) {
-            const alertClass = notification.type === 'critical' ? 'alert-critical' : 
-                              notification.type === 'warning' ? 'alert-warning' : 'alert-info';
+            // Determine styling based on notification type
+            let iconClass, bgColor, borderColor;
+            
+            if (notification.type === 'danger' || notification.type === 'critical') {
+                iconClass = 'fa-exclamation-circle';
+                bgColor = '#fee2e2';
+                borderColor = '#dc2626';
+            } else if (notification.type === 'warning') {
+                iconClass = 'fa-exclamation-triangle';
+                bgColor = '#fef3c7';
+                borderColor = '#f59e0b';
+            } else {
+                iconClass = 'fa-info-circle';
+                bgColor = '#dbeafe';
+                borderColor = '#3b82f6';
+            }
             
             return `
-                <div class="notification-item ${alertClass}">
-                    <div class="notification-text">${notification.message}</div>
-                    <div class="notification-time">${notification.time}</div>
+                <div class="notification-item" style="background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: start; gap: 10px;">
+                        <i class="fas ${iconClass}" style="color: ${borderColor}; font-size: 20px; margin-top: 2px;"></i>
+                        <div style="flex: 1;">
+                            <div class="notification-text" style="font-weight: 500; color: #374151; margin-bottom: 5px;">
+                                ${notification.message}
+                            </div>
+                            <div class="notification-time" style="font-size: 0.85rem; color: #6b7280;">
+                                <i class="fas fa-clock"></i> ${notification.timestamp || new Date().toLocaleTimeString()}
+                            </div>
+                            ${notification.status ? `<div style="margin-top: 4px;"><span style="background: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; color: ${borderColor};">Status: ${notification.status}</span></div>` : ''}
+                        </div>
+                    </div>
                 </div>
             `;
         }
 
         // Quick Action Functions
         function updateIncident() {
-            alert('Update Incident dialog will open here');
+            showToast('📝 Update incident dialog will open here', 'info', 3000);
         }
 
         // Siren Audio Variables
@@ -1131,7 +2194,7 @@
             }
             
             // Show notification
-            alert('🚨 Siren activated! Click "Stop Siren" to deactivate.');
+            showToast('🚨 Siren activated! Click "Stop Siren" to deactivate.', 'warning', 4000);
             
             // Store interval for cleanup
             window.sirenInterval = sirenInterval;
@@ -1164,12 +2227,144 @@
         }
 
         function pingDispatcher() {
-            alert('Pinging dispatcher...');
+            showToast('📡 Pinging dispatcher...', 'info', 2500);
         }
 
         function requestBackup() {
             if (confirm('Request backup for the selected incident?')) {
-                alert('Backup requested!');
+                showToast('🚓 Backup units requested successfully!', 'success', 3500);
+            }
+        }
+
+        // Store current incident data for sharing
+        let currentIncidentForShare = null;
+
+        // Update showIncidentDetails to store incident data
+        const originalShowIncidentDetails = showIncidentDetails;
+        showIncidentDetails = function(incident) {
+            currentIncidentForShare = incident;
+            originalShowIncidentDetails(incident);
+        };
+
+        // Share incident function
+        function shareIncident() {
+            if (!currentIncidentForShare) {
+                showToast('⚠️ No incident data available to share', 'error', 3000);
+                return;
+            }
+            
+            // Show share modal
+            const shareModal = new bootstrap.Modal(document.getElementById('shareModal'));
+            shareModal.show();
+        }
+
+        // Generate shareable text
+        function getShareableText() {
+            if (!currentIncidentForShare) return '';
+            
+            const incident = currentIncidentForShare;
+            const mapLink = incident.lat && incident.lon && incident.lat !== 0 && incident.lon !== 0 
+                ? `https://www.google.com/maps?q=${incident.lat},${incident.lon}`
+                : '';
+            
+            let text = `🚨 RoadSafeNet Incident Alert\n\n`;
+            text += `📋 ID: ${incident.id || 'N/A'}\n`;
+            text += `⚠️ Severity: ${incident.severity || 'Unknown'}\n`;
+            text += `📍 Location: ${incident.location || 'Unknown'}\n`;
+            if (incident.city) text += `🏙️ City: ${incident.city}\n`;
+            text += `🚗 Type: ${incident.type || 'Accident'}\n`;
+            text += `ℹ️ Status: ${incident.status || 'Pending'}\n`;
+            text += `⏰ Time: ${incident.timestamp || 'N/A'}\n`;
+            if (incident.confidence) {
+                text += `🎯 Confidence: ${(incident.confidence * 100).toFixed(1)}%\n`;
+            }
+            if (mapLink) {
+                text += `\n📌 View Location: ${mapLink}\n`;
+            }
+            text += `\n⚡ Powered by RoadSafeNet AI System`;
+            
+            return text;
+        }
+
+        // Share via Email
+        function shareViaEmail() {
+            const text = getShareableText();
+            const subject = `RoadSafeNet Alert - Incident ${currentIncidentForShare?.id || ''}`;
+            const body = encodeURIComponent(text);
+            window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${body}`, '_blank');
+            
+            // Close share modal
+            const shareModal = bootstrap.Modal.getInstance(document.getElementById('shareModal'));
+            if (shareModal) shareModal.hide();
+            
+            showToast('✅ Email client opened', 'success', 2500);
+        }
+
+        // Share via WhatsApp
+        function shareViaWhatsApp() {
+            const text = getShareableText();
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            
+            // Close share modal
+            const shareModal = bootstrap.Modal.getInstance(document.getElementById('shareModal'));
+            if (shareModal) shareModal.hide();
+            
+            showToast('✅ Opening WhatsApp...', 'success', 2500);
+        }
+
+        // Share via Telegram
+        function shareViaTelegram() {
+            const text = getShareableText();
+            const url = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            
+            // Close share modal
+            const shareModal = bootstrap.Modal.getInstance(document.getElementById('shareModal'));
+            if (shareModal) shareModal.hide();
+            
+            showToast('✅ Opening Telegram...', 'success', 2500);
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard() {
+            const text = getShareableText();
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    // Close share modal
+                    const shareModal = bootstrap.Modal.getInstance(document.getElementById('shareModal'));
+                    if (shareModal) shareModal.hide();
+                    
+                    showToast('✅ Incident details copied to clipboard!', 'success', 3000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        // Fallback copy method for older browsers
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                const shareModal = bootstrap.Modal.getInstance(document.getElementById('shareModal'));
+                if (shareModal) shareModal.hide();
+                showToast('✅ Incident details copied to clipboard!', 'success', 3000);
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showToast('❌ Failed to copy to clipboard', 'error', 3000);
+            } finally {
+                document.body.removeChild(textArea);
             }
         }
 
@@ -1179,18 +2374,896 @@
             logoutModal.show();
         }
 
+        // Check for new accidents and show popup
+        async function checkForAccidents() {
+            try {
+                const response = await fetch('/api/latest_accident');
+                const data = await response.json();
+                
+                console.log('Checking for accidents - Response:', data);
+                
+                if (data.success && data.accident) {
+                    console.log('🚨 NEW ACCIDENT DETECTED! Showing popup...');
+                    // Show accident alert popup
+                    showAccidentPopup(data.accident);
+                    
+                    // Clear the alert from server
+                    await fetch('/api/clear_accident_alert', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error checking for accidents:', error);
+            }
+        }
+
+        // Show accident popup with emergency notifications - slides from right
+        async function showAccidentPopup(accident) {
+            console.log('showAccidentPopup called with:', accident);
+            
+            // First show accident alert
+            showSlideNotification('accident', accident);
+            
+            // Zoom map to accident location and show marker
+            try {
+                zoomToAccidentLocation(accident);
+            } catch (error) {
+                console.error('Error zooming to accident location:', error);
+            }
+            
+            // Wait 3 seconds, then show notifications
+            setTimeout(async () => {
+                await showEmergencyNotifications(accident);
+            }, 3000);
+        }
+        
+        // ============= ENHANCED SOUND SYSTEM =============
+        
+        // Web Audio API context for better sound quality
+        let audioContext = null;
+        let soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; // Default: enabled
+        
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+        
+        // Toggle sound on/off
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('soundEnabled', soundEnabled);
+            
+            const soundIcon = document.getElementById('sound-toggle-icon');
+            if (soundIcon) {
+                soundIcon.className = soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+            }
+            
+            // Show feedback
+            showToast(
+                soundEnabled ? '🔊 Sound notifications enabled' : '🔇 Sound notifications muted',
+                soundEnabled ? 'success' : 'info',
+                2000
+            );
+            
+            return soundEnabled;
+        }
+        
+        // Emergency Siren Sound - Multi-layered for dramatic effect
+        function playEmergencySound() {
+            if (!soundEnabled) return; // Check if sound is enabled
+            
+            try {
+                const ctx = initAudioContext();
+                
+                // Layer 1: Low frequency alarm (police siren style)
+                const oscillator1 = ctx.createOscillator();
+                const gainNode1 = ctx.createGain();
+                
+                oscillator1.type = 'sine';
+                oscillator1.frequency.setValueAtTime(400, ctx.currentTime);
+                oscillator1.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.3);
+                oscillator1.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.6);
+                
+                gainNode1.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                
+                oscillator1.connect(gainNode1);
+                gainNode1.connect(ctx.destination);
+                
+                oscillator1.start(ctx.currentTime);
+                oscillator1.stop(ctx.currentTime + 0.8);
+                
+                // Layer 2: High frequency alert
+                const oscillator2 = ctx.createOscillator();
+                const gainNode2 = ctx.createGain();
+                
+                oscillator2.type = 'square';
+                oscillator2.frequency.setValueAtTime(1200, ctx.currentTime + 0.1);
+                
+                gainNode2.gain.setValueAtTime(0.15, ctx.currentTime + 0.1);
+                gainNode2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                
+                oscillator2.connect(gainNode2);
+                gainNode2.connect(ctx.destination);
+                
+                oscillator2.start(ctx.currentTime + 0.1);
+                oscillator2.stop(ctx.currentTime + 0.5);
+                
+                // Layer 3: Impact sound
+                const oscillator3 = ctx.createOscillator();
+                const gainNode3 = ctx.createGain();
+                
+                oscillator3.type = 'sawtooth';
+                oscillator3.frequency.setValueAtTime(100, ctx.currentTime);
+                oscillator3.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.2);
+                
+                gainNode3.gain.setValueAtTime(0.4, ctx.currentTime);
+                gainNode3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                
+                oscillator3.connect(gainNode3);
+                gainNode3.connect(ctx.destination);
+                
+                oscillator3.start(ctx.currentTime);
+                oscillator3.stop(ctx.currentTime + 0.2);
+                
+                console.log('🔊 Emergency siren played');
+                
+            } catch (error) {
+                console.log('Audio context not available:', error);
+                // Fallback to simple beep
+                playSimpleBeep(800, 0.3, 0.5);
+            }
+        }
+        
+        // Dispatch Success Sound - Pleasant notification
+        function playDispatchSound(serviceType) {
+            if (!soundEnabled) return; // Check if sound is enabled
+            
+            try {
+                const ctx = initAudioContext();
+                
+                // Different tones for different services
+                let frequencies = [523.25, 659.25, 783.99]; // C, E, G chord
+                
+                if (serviceType === 'ambulance') {
+                    frequencies = [523.25, 659.25, 783.99]; // C major
+                } else if (serviceType === 'police' || serviceType === 'police_station') {
+                    frequencies = [440, 554.37, 659.25]; // A major
+                } else if (serviceType === 'hospital') {
+                    frequencies = [493.88, 622.25, 739.99]; // B major
+                }
+                
+                frequencies.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0.2, ctx.currentTime + index * 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + index * 0.1 + 0.3);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    
+                    oscillator.start(ctx.currentTime + index * 0.1);
+                    oscillator.stop(ctx.currentTime + index * 0.1 + 0.3);
+                });
+                
+                console.log('🔊 Dispatch notification sound played');
+                
+            } catch (error) {
+                console.log('Audio context not available:', error);
+                playSimpleBeep(600, 0.2, 0.3);
+            }
+        }
+        
+        // Simple beep fallback
+        function playSimpleBeep(frequency, volume, duration) {
+            try {
+                const ctx = initAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = frequency;
+                
+                gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + duration);
+            } catch (error) {
+                console.log('Beep sound failed:', error);
+            }
+        }
+        
+        // Toast notification sound
+        function playToastSound(type) {
+            if (!soundEnabled) return; // Check if sound is enabled
+            
+            try {
+                const ctx = initAudioContext();
+                
+                let frequency = 600;
+                let duration = 0.15;
+                
+                switch(type) {
+                    case 'success':
+                        frequency = 800;
+                        duration = 0.2;
+                        break;
+                    case 'error':
+                        frequency = 300;
+                        duration = 0.3;
+                        break;
+                    case 'warning':
+                        frequency = 500;
+                        duration = 0.25;
+                        break;
+                    default:
+                        frequency = 600;
+                        duration = 0.15;
+                }
+                
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + duration);
+                
+            } catch (error) {
+                console.log('Toast sound failed:', error);
+            }
+        }
+        
+        // ============= END SOUND SYSTEM =============
+        
+        function showSlideNotification(type, data) {
+            console.log('showSlideNotification called with type:', type, 'data:', data);
+            
+            const notification = document.createElement('div');
+            notification.className = 'accident-alert-left';
+            
+            const confidence = (data.confidence * 100).toFixed(1);
+            const currentTime = new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            notification.innerHTML = `
+                <button class="close-btn" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="notification-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="notification-content">
+                    <h4><i class="fas fa-car-crash"></i> ACCIDENT DETECTED!</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${data.location.name}</p>
+                    <p><i class="fas fa-percentage"></i> <strong>Confidence:</strong> ${confidence}%</p>
+                    <p><i class="fas fa-clock"></i> <strong>Time:</strong> ${currentTime}</p>
+                    <span class="notification-badge badge-critical">⚠️ EMERGENCY</span>
+                </div>
+                <div class="notification-progress"></div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // ENHANCED EMERGENCY SIREN SOUND - Multiple layers for dramatic effect
+            playEmergencySound();
+            
+            // Vibration API for mobile devices - Strong emergency pattern
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200, 100, 400]);
+            }
+            
+            // Trigger slide-in animation with slight delay for smooth effect
+            setTimeout(() => notification.classList.add('show'), 150);
+            
+            // Auto-remove after 15 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 600);
+            }, 15000);
+        }
+        
+        // Modern Toast Notification Function (replaces ugly alert())
+        function showToast(message, type = 'info', duration = 30000) {
+            const toast = document.createElement('div');
+            toast.className = 'slide-notification';
+            
+            let icon, gradientColor, bgClass, emoji;
+            
+            switch(type) {
+                case 'success':
+                    icon = 'fa-check-circle';
+                    gradientColor = 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
+                    bgClass = 'service-notification';
+                    emoji = '✅';
+                    break;
+                case 'error':
+                    icon = 'fa-times-circle';
+                    gradientColor = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
+                    bgClass = 'accident-alert';
+                    emoji = '❌';
+                    break;
+                case 'warning':
+                    icon = 'fa-exclamation-triangle';
+                    gradientColor = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
+                    bgClass = 'service-notification';
+                    emoji = '⚠️';
+                    break;
+                default:
+                    icon = 'fa-info-circle';
+                    gradientColor = 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)';
+                    bgClass = 'service-notification';
+                    emoji = 'ℹ️';
+            }
+            
+            toast.classList.add(bgClass);
+            
+            const currentTime = new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+            
+            toast.innerHTML = `
+                <button class="close-btn" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="notification-icon" style="background: ${gradientColor};">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="notification-content">
+                    <h4><i class="fas ${icon}"></i> ${emoji} ${type.toUpperCase()}</h4>
+                    <p>${message}</p>
+                    <p><i class="fas fa-clock"></i> <strong>${currentTime}</strong></p>
+                </div>
+                <div class="notification-progress" style="animation-duration: ${duration}ms;"></div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Stack notifications vertically AFTER adding to DOM
+            setTimeout(() => {
+                const allToasts = document.querySelectorAll('.slide-notification');
+                allToasts.forEach((t, index) => {
+                    const topOffset = 80 + (index * 220);
+                    t.style.top = topOffset + 'px';
+                });
+            }, 10);
+            
+            // Play appropriate sound based on type
+            playToastSound(type);
+            
+            // Gentle vibration for toasts
+            if ('vibrate' in navigator) {
+                navigator.vibrate([50]);
+            }
+            
+            setTimeout(() => toast.classList.add('show'), 150);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                    // Reposition remaining toasts
+                    repositionToasts();
+                }, 600);
+            }, duration);
+        }
+        
+        // Helper function to reposition notifications after one is removed
+        function repositionToasts() {
+            const toasts = document.querySelectorAll('.slide-notification');
+            toasts.forEach((toast, index) => {
+                const newTop = 80 + (index * 220);
+                toast.style.top = newTop + 'px';
+            });
+        }
+        
+        async function showEmergencyNotifications(accident) {
+            try {
+                const response = await fetch('/api/emergency_notifications');
+                const data = await response.json();
+                
+                if (data.success && data.notifications && data.notifications.length > 0) {
+                    const latest = data.notifications.slice(-3); // Get last 3 notifications
+                    
+                    // Show each notification with 2 second delay
+                    latest.forEach((notification, index) => {
+                        setTimeout(() => {
+                            showServiceNotification(notification);
+                        }, index * 2000); // 2 seconds between each
+                    });
+                } else {
+                    // Show default notifications if API fails
+                    const defaultNotifications = [
+                        { type: 'hospital', service_name: 'Hospital Kuala Lumpur', distance: 2.5 },
+                        { type: 'police_station', service_name: 'Balai Polis Sentul', distance: 1.8 },
+                        { type: 'ambulance', service_name: 'Ambulance Unit 001', distance: 1.2 }
+                    ];
+                    
+                    defaultNotifications.forEach((notification, index) => {
+                        setTimeout(() => {
+                            showServiceNotification(notification);
+                        }, index * 2000); // 2 seconds between each
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+        
+        function showServiceNotification(notification) {
+            const notif = document.createElement('div');
+            notif.className = 'slide-notification service-notification';
+            
+            // Determine icon, color, and styling based on service type
+            let icon, gradientColor, title, emoji, eta;
+            if (notification.type === 'hospital') {
+                icon = 'fa-hospital';
+                gradientColor = 'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)';
+                title = '🏥 Hospital Notified';
+                emoji = '🚑';
+                eta = Math.ceil(notification.distance * 3); // ~3 min per km
+            } else if (notification.type === 'police_station' || notification.type === 'police') {
+                icon = 'fa-shield-alt';
+                gradientColor = 'linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%)';
+                title = '👮 Police Dispatched';
+                emoji = '🚓';
+                eta = Math.ceil(notification.distance * 2.5); // ~2.5 min per km
+            } else {
+                icon = 'fa-ambulance';
+                gradientColor = 'linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%)';
+                title = '🚑 Ambulance En Route';
+                emoji = '🚑';
+                eta = Math.ceil(notification.distance * 2); // ~2 min per km (fastest)
+            }
+            
+            const currentTime = new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            notif.innerHTML = `
+                <button class="close-btn" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="notification-icon" style="background: ${gradientColor};">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="notification-content">
+                    <h4><i class="fas fa-check-circle"></i> ${title}</h4>
+                    <p><i class="fas fa-building"></i> <strong>${notification.service_name}</strong></p>
+                    <p><i class="fas fa-route"></i> <strong>Distance:</strong> ${notification.distance.toFixed(1)} km</p>
+                    <p><i class="fas fa-tachometer-alt"></i> <strong>ETA:</strong> ~${eta} minutes</p>
+                    <p><i class="fas fa-clock"></i> <strong>Dispatched:</strong> ${currentTime}</p>
+                    <span class="notification-badge badge-success">${emoji} DISPATCHED</span>
+                </div>
+                <div class="notification-progress"></div>
+            `;
+            
+            document.body.appendChild(notif);
+            
+            // Stack notifications vertically AFTER adding to DOM
+            setTimeout(() => {
+                const allToasts = document.querySelectorAll('.slide-notification');
+                allToasts.forEach((t, index) => {
+                    const topOffset = 80 + (index * 220);
+                    t.style.top = topOffset + 'px';
+                });
+            }, 10);
+            
+            // ENHANCED DISPATCH SUCCESS SOUND - Positive notification
+            playDispatchSound(notification.type);
+            
+            // Gentle vibration for success
+            if ('vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100]);
+            }
+            
+            // Trigger slide-in animation
+            setTimeout(() => notif.classList.add('show'), 150);
+            
+            // Auto-remove after 30 seconds and reposition remaining notifications
+            setTimeout(() => {
+                notif.classList.remove('show');
+                setTimeout(() => {
+                    notif.remove();
+                    repositionToasts();
+                }, 600);
+            }, 30000);
+        }
+
+        function closeAccidentPopup() {
+            // Not needed anymore - auto-closes
+        }
+
+        // Video Control Functions
+        let isVideoPlaying = false;
+        let detectionEnabled = true;
+        let monitoringActive = false;
+
+        // Start Monitoring Function
+        async function startMonitoring() {
+            try {
+                // Call backend API to start monitoring
+                const response = await fetch('/api/start_monitoring', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Monitoring started:', data.message);
+                    
+                    // Hide start screen, show video feed
+                    document.getElementById('start-monitoring-screen').style.display = 'none';
+                    document.getElementById('video-feed-container').style.display = 'block';
+                    document.getElementById('video-control-btn').style.display = 'inline-block';
+                    document.getElementById('stop-monitoring-btn').style.display = 'inline-block';
+                    
+                    // Set video source
+                    document.getElementById('cctv-feed').src = "{{ url_for('video_feed') }}";
+                    
+                    isVideoPlaying = true;
+                    monitoringActive = true;
+                    
+                    // Show success toast
+                    showSuccessToast('🎥 Monitoring Started', 'Accident detection is now active');
+                } else {
+                    console.error('Failed to start monitoring:', data.message);
+                    showErrorToast('Error', data.message);
+                }
+            } catch (error) {
+                console.error('Error starting monitoring:', error);
+                showErrorToast('Error', 'Failed to start monitoring system');
+            }
+        }
+
+        // Stop Monitoring Function (Admin Only)
+        async function stopMonitoring() {
+            if (!confirm('Are you sure you want to stop monitoring?')) {
+                return;
+            }
+            
+            try {
+                // Call backend API to stop monitoring
+                const response = await fetch('/api/stop_monitoring', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Monitoring stopped:', data.message);
+                    
+                    // Show start screen, hide video feed
+                    document.getElementById('start-monitoring-screen').style.display = 'flex';
+                    document.getElementById('video-feed-container').style.display = 'none';
+                    document.getElementById('video-control-btn').style.display = 'none';
+                    document.getElementById('stop-monitoring-btn').style.display = 'none';
+                    
+                    // Clear video source
+                    document.getElementById('cctv-feed').src = '';
+                    
+                    isVideoPlaying = false;
+                    monitoringActive = false;
+                    
+                    // Show success toast
+                    showSuccessToast('🛑 Monitoring Stopped', 'Accident detection has been stopped');
+                } else {
+                    console.error('Failed to stop monitoring:', data.message);
+                    showErrorToast('Error', data.message);
+                }
+            } catch (error) {
+                console.error('Error stopping monitoring:', error);
+                showErrorToast('Error', 'Failed to stop monitoring system');
+            }
+        }
+
+        // CCTV Video Control Functions for Traffic Authority
+        function toggleCCTVPlayback() {
+            const video = document.getElementById('cctv-video-ta');
+            const icon = document.getElementById('play-pause-icon');
+            const text = document.getElementById('play-pause-text');
+            const button = document.getElementById('play-pause-btn');
+            
+            if (video.paused) {
+                video.play();
+                icon.className = 'fas fa-pause';
+                text.textContent = 'Pause';
+                button.className = 'btn btn-success';
+                showToast('▶️ Video Playing', 'success', 2000);
+            } else {
+                video.pause();
+                icon.className = 'fas fa-play';
+                text.textContent = 'Play';
+                button.className = 'btn btn-warning';
+                showToast('⏸️ Video Paused', 'info', 2000);
+            }
+        }
+
+        function restartCCTV() {
+            const video = document.getElementById('cctv-video-ta');
+            video.currentTime = 0;
+            video.play();
+            
+            const icon = document.getElementById('play-pause-icon');
+            const text = document.getElementById('play-pause-text');
+            const button = document.getElementById('play-pause-btn');
+            
+            icon.className = 'fas fa-pause';
+            text.textContent = 'Pause';
+            button.className = 'btn btn-success';
+            
+            showToast('🔄 Video Restarted', 'success', 2000);
+        }
+
+        // Toast notification functions
+        function showSuccessToast(title, message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+                z-index: 10000;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease;
+            `;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${title}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">${message}</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showErrorToast(title, message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+                z-index: 10000;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease;
+            `;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${title}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">${message}</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function toggleVideoFeed() {
+            const videoFeed = document.getElementById('cctv-feed');
+            const controlBtn = document.getElementById('video-control-btn');
+            const statusText = document.getElementById('video-status');
+            const liveIndicator = document.getElementById('live-indicator');
+            
+            if (isVideoPlaying) {
+                // Pause detection - show raw video
+                try {
+                    // Disable detection on backend
+                    const response = await fetch('/api/toggle_detection', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ enable: false })
+                    });
+                    
+                    const data = await response.json();
+                    console.log('Detection disabled:', data.message);
+                    
+                    // Update UI
+                    controlBtn.className = 'btn btn-sm btn-warning';
+                    controlBtn.innerHTML = '<i class="fas fa-play"></i> <span id="video-status">Resume Detection</span>';
+                    liveIndicator.innerHTML = '<div class="live-dot" style="background: #f59e0b;"></div>RAW VIDEO';
+                    liveIndicator.style.background = 'rgba(245, 158, 11, 0.9)';
+                    isVideoPlaying = false;
+                    detectionEnabled = false;
+                } catch (error) {
+                    console.error('Error disabling detection:', error);
+                }
+            } else {
+                // Resume detection
+                try {
+                    // Enable detection on backend
+                    const response = await fetch('/api/toggle_detection', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ enable: true })
+                    });
+                    
+                    const data = await response.json();
+                    console.log('Detection enabled:', data.message);
+                    
+                    // Update UI
+                    controlBtn.className = 'btn btn-sm btn-success';
+                    controlBtn.innerHTML = '<i class="fas fa-pause"></i> <span id="video-status">Pause Detection</span>';
+                    liveIndicator.innerHTML = '<div class="live-dot"></div>LIVE DETECTION';
+                    liveIndicator.style.background = 'rgba(220, 38, 38, 0.9)';
+                    isVideoPlaying = true;
+                    detectionEnabled = true;
+                } catch (error) {
+                    console.error('Error enabling detection:', error);
+                }
+            }
+        }
+
+        // Accident marker on map (global variables)
+        var accidentMarker = null;
+        var accidentCircle = null;
+
+        function zoomToAccidentLocation(accident) {
+            // Handle both 'lat'/'lon' and 'latitude'/'longitude' keys
+            const lat = accident.location.lat || accident.location.latitude;
+            const lon = accident.location.lon || accident.location.longitude;
+            
+            console.log('Zooming to accident location:', lat, lon, accident.location.name);
+            console.log('Map object available:', typeof map !== 'undefined' && map !== null);
+            
+            // Validate coordinates
+            if (!lat || !lon || isNaN(lat) || isNaN(lon)) {
+                console.error('Invalid coordinates for accident:', accident.location);
+                return;
+            }
+            
+            // Ensure map is available
+            const mapObj = window.map || map;
+            if (!mapObj) {
+                console.error('Map object not available!');
+                return;
+            }
+            
+            // Remove previous accident marker if exists
+            if (accidentMarker) {
+                mapObj.removeLayer(accidentMarker);
+            }
+            if (accidentCircle) {
+                mapObj.removeLayer(accidentCircle);
+            }
+            
+            // Create accident icon
+            const accidentIcon = L.divIcon({
+                html: `<div style="background: #dc2626; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6); border: 3px solid white; animation: pulse-accident 2s infinite;">🚨</div>`,
+                className: 'accident-marker-icon',
+                iconSize: [48, 48],
+                iconAnchor: [24, 24],
+                popupAnchor: [0, -24]
+            });
+            
+            // Add accident marker
+            try {
+                accidentMarker = L.marker([lat, lon], { icon: accidentIcon }).addTo(mapObj);
+                console.log('Accident marker added at:', lat, lon);
+                
+                // Add popup
+                const popupContent = `
+                    <div style="text-align: center; min-width: 200px;">
+                        <h5 style="color: #dc2626; margin-bottom: 10px;">
+                            <i class="fas fa-exclamation-triangle"></i> ACCIDENT DETECTED
+                        </h5>
+                        <p><strong>Location:</strong> ${accident.location.name}</p>
+                        <p><strong>Confidence:</strong> ${(accident.confidence * 100).toFixed(1)}%</p>
+                        <p><strong>Time:</strong> ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                `;
+                accidentMarker.bindPopup(popupContent).openPopup();
+                
+                // Add pulsing circle around accident
+                accidentCircle = L.circle([lat, lon], {
+                    color: '#dc2626',
+                    fillColor: '#fca5a5',
+                    fillOpacity: 0.3,
+                    radius: 500,
+                    weight: 2
+                }).addTo(mapObj);
+                console.log('Accident circle added');
+                
+                // Zoom to accident location with animation
+                console.log('Flying to coordinates:', lat, lon);
+                mapObj.flyTo([lat, lon], 15, {
+                    duration: 2,
+                    easeLinearity: 0.5
+                });
+                console.log('Map zoom initiated successfully');
+            } catch (error) {
+                console.error('Error adding marker or zooming map:', error);
+            }
+            
+            // Add CSS for pulse animation if not exists
+            if (!document.getElementById('accident-pulse-style')) {
+                const style = document.createElement('style');
+                style.id = 'accident-pulse-style';
+                style.textContent = `
+                    @keyframes pulse-accident {
+                        0%, 100% {
+                            transform: scale(1);
+                            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6);
+                        }
+                        50% {
+                            transform: scale(1.1);
+                            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.9);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
         // Auto-refresh data every 10 seconds
         function autoRefresh() {
             loadIncidents();
             loadNotifications();
+            checkForAccidents();
         }
 
         // Initial load
         loadIncidents();
         loadNotifications();
+        checkForAccidents();
 
         // Set up auto-refresh
-        setInterval(autoRefresh, 10000);
+        setInterval(autoRefresh, 5000);  // Check every 5 seconds for faster response
     </script>
 </body>
 </html>

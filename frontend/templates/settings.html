@@ -83,6 +83,21 @@
             transform: translateY(-2px);
         }
         
+        /* Navigation Time Display */
+        .nav-time-display .nav-link {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem !important;
+            font-family: 'Space Grotesk', monospace;
+            cursor: default;
+            pointer-events: none;
+        }
+        
+        .nav-time-display .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: none;
+        }
+        
         .nav-link.active::after {
             content: '';
             position: absolute;
@@ -559,6 +574,7 @@
                             <i class="fas fa-bell me-1"></i>Notifications
                         </a>
                     </li>
+                    {% if user_role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard/users">
                             <i class="fas fa-users me-1"></i>Users
@@ -569,10 +585,19 @@
                             <i class="fas fa-cog me-1"></i>Notification Config
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link active" href="/dashboard/settings">
                             <i class="fas fa-sliders-h me-1"></i>Settings
                         </a>
+                    </li>
+                    <li class="nav-item nav-time-display">
+                        <span class="nav-link">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="malaysian-time-nav" style="font-weight: 500;">--:--:--</span>
+                            <span class="mx-1">|</span>
+                            <span id="malaysian-date-nav" style="font-size: 0.85rem; opacity: 0.9;">Loading...</span>
+                        </span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="showLogoutModal(); return false;">
@@ -680,9 +705,10 @@
                     <small class="text-muted d-block mt-1 ms-5">Receive real-time alerts for incidents</small>
                 </div>
 
+                {% if user_role == 'admin' %}
                 <div class="col-md-6 mb-3">
                     <label for="autoLogoutTime" class="form-label">
-                        Auto Logout Time (minutes)
+                        Auto Logout Time (minutes) <span class="badge bg-danger ms-2">Admin Only</span>
                         <span class="form-label-subtitle">Inactive session timeout duration</span>
                     </label>
                     <input type="number" class="form-control" id="autoLogoutTime" value="15" min="5" max="60">
@@ -693,13 +719,77 @@
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="autoLogoutInactivity">
                         <label class="form-check-label" for="autoLogoutInactivity">
-                            Enable Auto-Logout After Inactivity
+                            Enable Auto-Logout After Inactivity <span class="badge bg-danger ms-2">Admin Only</span>
                         </label>
                     </div>
                     <small class="text-muted d-block mt-1 ms-5">Automatically log out after specified inactivity period</small>
                 </div>
+                {% endif %}
             </div>
         </div>
+
+        <!-- Telegram Bot Token Section (Emergency Responders Only) -->
+        {% if user_role in ['admin', 'operator'] or username in ['police', 'ambulance', 'hospital'] %}
+        <div class="settings-section">
+            <div class="section-header">
+                <div class="section-icon" style="background: #0088cc; color: white;">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Telegram Bot Configuration <span class="badge bg-info ms-3">Emergency Responder</span></h2>
+                </div>
+            </div>
+
+            <div class="alert-custom" style="background: linear-gradient(135deg, #cff4fc 0%, #9eeaf9 100%); border-left: 4px solid #0dcaf0;">
+                <i class="fas fa-robot" style="color: #0dcaf0;"></i>
+                <strong>Important:</strong> Enter your Telegram bot token to receive automatic accident notifications. When an accident is detected near your location, the system will send immediate alerts to your bot.
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="telegramBotToken" class="form-label">
+                        Telegram Bot Token
+                        <span class="form-label-subtitle">Your personal Telegram bot API token for receiving alerts</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="telegramBotToken" placeholder="Enter your Telegram bot token (e.g., 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)" value="{{ telegram_bot_token or '' }}">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleTokenVisibility" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye" id="toggleTokenIcon"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        To create a Telegram bot: 
+                        <a href="https://t.me/BotFather" target="_blank" style="color: var(--blue-info); text-decoration: none; font-weight: 600;">
+                            Message @BotFather on Telegram
+                        </a>
+                        and follow the instructions to get your token.
+                    </small>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label for="telegramChatId" class="form-label">
+                        Telegram Chat ID
+                        <span class="form-label-subtitle">Your Telegram chat ID where notifications will be sent</span>
+                    </label>
+                    <input type="text" class="form-control" id="telegramChatId" placeholder="Enter your Telegram chat ID (e.g., 123456789)" value="{{ telegram_chat_id or '' }}">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        To get your Chat ID: 
+                        <strong>1)</strong> Start your bot on Telegram 
+                        <strong>2)</strong> Send any message to it 
+                        <strong>3)</strong> Open <a href="https://t.me/userinfobot" target="_blank" style="color: var(--blue-info); text-decoration: none; font-weight: 600;">@userinfobot</a> 
+                        <strong>4)</strong> Send any message to get your Chat ID
+                    </small>
+                </div>
+            </div>
+
+            <div class="alert-custom" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 4px solid var(--green-success);">
+                <i class="fas fa-lightbulb" style="color: var(--green-success);"></i>
+                <strong>How It Works:</strong> When an accident is detected, the system automatically finds the 3 nearest emergency responders of each type (police, ambulance, hospital) and sends instant notifications via their registered Telegram bots using your Chat ID.
+            </div>
+        </div>
+        {% endif %}
 
         <!-- General Preferences Section -->
         <div class="settings-section">
@@ -744,10 +834,11 @@
                     </select>
                 </div>
 
+                {% if user_role == 'admin' %}
                 <div class="col-md-6 mb-3">
                     <label for="mapProvider" class="form-label">
-                        Default Map Provider
-                        <span class="form-label-subtitle">Choose your preferred map service</span>
+                        Default Map Provider <span class="badge bg-danger ms-2">Admin Only</span>
+                        <span class="form-label-subtitle">Choose system-wide preferred map service</span>
                     </label>
                     <select class="form-select" id="mapProvider">
                         <option value="openstreetmap" selected>OpenStreetMap</option>
@@ -757,6 +848,7 @@
                         <option value="bing-maps">Bing Maps</option>
                     </select>
                 </div>
+                {% endif %}
 
                 <div class="col-md-6 mb-3">
                     <div class="form-check form-switch">
@@ -767,24 +859,35 @@
                     </div>
                     <small class="text-muted d-block mt-1 ms-5">Switch to dark theme for better visibility at night</small>
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="soundNotifications">
+                        <label class="form-check-label" for="soundNotifications">
+                            Enable Sound Notifications
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-1 ms-5">Play audio alerts for accident detection and notifications</small>
+                </div>
             </div>
         </div>
 
-        <!-- Notification Channels Section -->
+        <!-- Notification Channels Section (Admin Only) -->
+        {% if user_role == 'admin' %}
         <div class="settings-section">
             <div class="section-header">
                 <div class="section-icon channels">
                     <i class="fas fa-bell"></i>
                 </div>
                 <div>
-                    <h2 class="section-title">Notification Channels</h2>
+                    <h2 class="section-title">Notification Channels <span class="badge bg-danger ms-3">Admin Only</span></h2>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">
-                    Preferred Notification Channels
-                    <span class="form-label-subtitle">Select multiple channels to receive notifications (Ctrl or Cmd to select multiple options)</span>
+                    System Notification Channels
+                    <span class="form-label-subtitle">Configure system-wide notification channels (Ctrl or Cmd to select multiple options)</span>
                 </label>
                 <div class="multi-select-container">
                     <div class="multi-select-item">
@@ -821,6 +924,7 @@
                 <small class="text-muted">Hold Ctrl (or Cmd on Mac) to select multiple options</small>
             </div>
         </div>
+        {% endif %}
 
         <!-- Save Button -->
         <div class="settings-section">
@@ -833,25 +937,32 @@
     <!-- Logout Confirmation Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logoutModalLabel">
-                        <i class="fas fa-sign-out-alt me-2"></i>Confirm Logout
+            <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--navy-blue) 0%, #2563eb 100%); border: none; padding: 1.75rem 2rem; color: white;">
+                    <h5 class="modal-title" id="logoutModalLabel" style="font-family: 'Sora', sans-serif; font-weight: 600; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                        <i class="fas fa-sign-out-alt" style="font-size: 1.5rem;"></i>
+                        Confirm Logout
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <div class="logout-modal-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
+                <div class="modal-body" style="padding: 3rem 2rem 2rem; text-align: center; background: white;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(245, 158, 11, 0.2);">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: var(--orange-warning);"></i>
                     </div>
-                    <h5>Are you sure you want to logout?</h5>
-                    <p class="text-muted">You will be redirected to the login page.</p>
+                    <h6 style="font-family: 'Sora', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.75rem;">
+                        Are you sure you want to log out?
+                    </h6>
+                    <p style="font-size: 0.95rem; color: var(--gray-600); margin-bottom: 0; line-height: 1.6;">
+                        You will need to log in again to access the dashboard and monitor incidents.
+                    </p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="window.location.href='/logout'">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                <div class="modal-footer" style="border: none; padding: 0 2rem 2rem; gap: 1rem; background: white; justify-content: center;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: var(--gray-200); color: var(--gray-700); border: none; transition: all 0.3s ease; min-width: 120px;">
+                        <i class="fas fa-times me-2"></i>Cancel
                     </button>
+                    <a href="/logout" class="btn btn-danger" style="font-family: 'Space Grotesk', sans-serif; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: linear-gradient(135deg, var(--red-alert) 0%, #b91c1c 100%); border: none; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); transition: all 0.3s ease; min-width: 120px;">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
                 </div>
             </div>
         </div>
@@ -861,6 +972,68 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Malaysian Time Display
+        function updateMalaysianTime() {
+            const now = new Date();
+            
+            // Convert to Malaysian Time (GMT+8)
+            const malaysianTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
+            
+            // Format time (HH:MM:SS)
+            const hours = malaysianTime.getHours().toString().padStart(2, '0');
+            const minutes = malaysianTime.getMinutes().toString().padStart(2, '0');
+            const seconds = malaysianTime.getSeconds().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // Format date (short version for navbar)
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                timeZone: 'Asia/Kuala_Lumpur'
+            };
+            const dateString = malaysianTime.toLocaleDateString('en-MY', options);
+            
+            // Update navbar time display
+            const timeNav = document.getElementById('malaysian-time-nav');
+            const dateNav = document.getElementById('malaysian-date-nav');
+            if (timeNav) timeNav.textContent = timeString;
+            if (dateNav) dateNav.textContent = dateString;
+        }
+        
+        // Update time immediately and then every second
+        updateMalaysianTime();
+        setInterval(updateMalaysianTime, 1000);
+        
+        // Simple toast notification function
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.querySelector('.toast-container-settings');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container-settings';
+                toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
+            toast.style.cssText = 'min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
         // Load saved preferences on page load
         document.addEventListener('DOMContentLoaded', function() {
             // FIRST: Check and apply current dark mode state from localStorage
@@ -874,6 +1047,10 @@
                     applyDarkMode(true);
                 }
             }
+            
+            // Load sound notification setting from localStorage
+            const soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; // default true
+            document.getElementById('soundNotifications').checked = soundEnabled;
             
             // THEN: Load other preferences
             loadPreferences();
@@ -896,6 +1073,26 @@
                 }));
                 
                 console.log('🎨 Dark mode ' + (isEnabled ? 'enabled' : 'disabled') + ' and saved');
+            });
+            
+            // Add sound notifications toggle listener
+            document.getElementById('soundNotifications').addEventListener('change', function() {
+                const isEnabled = this.checked;
+                localStorage.setItem('soundEnabled', isEnabled);
+                
+                // Trigger storage event for other tabs
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'soundEnabled',
+                    newValue: isEnabled
+                }));
+                
+                // Show feedback toast
+                showToast(
+                    isEnabled ? '🔊 Sound notifications enabled' : '🔇 Sound notifications muted',
+                    'success'
+                );
+                
+                console.log('🔊 Sound notifications ' + (isEnabled ? 'enabled' : 'disabled') + ' and saved');
             });
         });
 
@@ -968,31 +1165,86 @@
             }
         }
 
+        // Toggle password visibility for bot token
+        function togglePasswordVisibility() {
+            const tokenInput = document.getElementById('telegramBotToken');
+            const toggleIcon = document.getElementById('toggleTokenIcon');
+            
+            if (tokenInput.type === 'password') {
+                tokenInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                tokenInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
         // Save preferences
         async function savePreferences() {
-            // Gather all selected channels
-            const selectedChannels = [];
-            document.querySelectorAll('.multi-select-item input[type="checkbox"]:checked').forEach(checkbox => {
-                selectedChannels.push(checkbox.value);
-            });
-
-            const preferences = {
-                ui_language: document.getElementById('uiLanguage').value,
-                notification_language: document.getElementById('notificationLanguage').value,
-                enable_notifications: document.getElementById('enableNotifications').checked,
-                auto_logout_time: parseInt(document.getElementById('autoLogoutTime').value),
-                auto_logout_inactivity: document.getElementById('autoLogoutInactivity').checked,
-                time_zone: document.getElementById('timeZone').value,
-                map_provider: document.getElementById('mapProvider').value,
-                dark_mode: document.getElementById('darkMode').checked,
-                notification_channels: selectedChannels
-            };
-
-            // Save to localStorage
-            localStorage.setItem('userPreferences', JSON.stringify(preferences));
-
+            console.log('🔄 Save button clicked - Starting save process...');
+            
             try {
+                // Gather all selected channels
+                const selectedChannels = [];
+                document.querySelectorAll('.multi-select-item input[type="checkbox"]:checked').forEach(checkbox => {
+                    selectedChannels.push(checkbox.value);
+                });
+
+                const preferences = {};
+                
+                // Only add elements if they exist
+                const uiLang = document.getElementById('uiLanguage');
+                if (uiLang) preferences.ui_language = uiLang.value;
+                
+                const notifLang = document.getElementById('notificationLanguage');
+                if (notifLang) preferences.notification_language = notifLang.value;
+                
+                const enableNotif = document.getElementById('enableNotifications');
+                if (enableNotif) preferences.enable_notifications = enableNotif.checked;
+                
+                const autoLogout = document.getElementById('autoLogoutTime');
+                if (autoLogout) preferences.auto_logout_time = parseInt(autoLogout.value);
+                
+                const autoLogoutInact = document.getElementById('autoLogoutInactivity');
+                if (autoLogoutInact) preferences.auto_logout_inactivity = autoLogoutInact.checked;
+                
+                const timezone = document.getElementById('timeZone');
+                if (timezone) preferences.time_zone = timezone.value;
+                
+                const mapProv = document.getElementById('mapProvider');
+                if (mapProv) preferences.map_provider = mapProv.value;
+                
+                const darkMode = document.getElementById('darkMode');
+                if (darkMode) preferences.dark_mode = darkMode.checked;
+                
+                preferences.notification_channels = selectedChannels;
+
+                // Add Telegram bot token and chat ID if fields exist (emergency responders only)
+                const telegramBotTokenInput = document.getElementById('telegramBotToken');
+                const telegramChatIdInput = document.getElementById('telegramChatId');
+                
+                if (telegramBotTokenInput) {
+                    const tokenValue = telegramBotTokenInput.value.trim();
+                    preferences.telegram_bot_token = tokenValue;
+                    console.log('📱 Telegram Bot Token:', tokenValue ? `${tokenValue.substring(0, 10)}...` : 'empty');
+                }
+                
+                if (telegramChatIdInput) {
+                    const chatIdValue = telegramChatIdInput.value.trim();
+                    preferences.telegram_chat_id = chatIdValue;
+                    console.log('💬 Telegram Chat ID:', chatIdValue ? chatIdValue : 'empty');
+                }
+
+                console.log('📦 Preferences to save:', preferences);
+
+                // Save to localStorage
+                localStorage.setItem('userPreferences', JSON.stringify(preferences));
+                console.log('✅ Saved to localStorage');
+
                 // Save to API
+                console.log('🌐 Sending to server...');
                 const response = await fetch('/api/settings', {
                     method: 'POST',
                     headers: {
@@ -1001,16 +1253,21 @@
                     body: JSON.stringify(preferences)
                 });
 
+                console.log('📡 Server response status:', response.status);
+                const responseData = await response.json();
+                console.log('📨 Server response:', responseData);
+
                 if (response.ok) {
+                    console.log('✅ Settings saved successfully!');
                     showSuccessMessage();
                 } else {
-                    alert('❌ Failed to save preferences to server, but saved locally');
+                    console.error('❌ Server error:', responseData);
+                    alert('❌ Failed to save preferences to server: ' + (responseData.error || 'Unknown error'));
                     showSuccessMessage();
                 }
             } catch (error) {
-                console.error('Error saving preferences:', error);
-                alert('❌ Failed to save preferences to server, but saved locally');
-                showSuccessMessage();
+                console.error('❌ Error in savePreferences:', error);
+                alert('❌ Error: ' + error.message);
             }
         }
 

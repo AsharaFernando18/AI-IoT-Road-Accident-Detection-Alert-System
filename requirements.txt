@@ -11,18 +11,18 @@ dash-bootstrap-components==1.5.0
 plotly==5.18.0
 
 # AI/ML and Computer Vision
-ultralytics==8.0.225
-opencv-python==4.8.1.78
-opencv-contrib-python==4.8.1.78
-torch==2.1.1
-torchvision==0.16.1
-numpy==1.24.3
-pillow==10.1.0
+ultralytics>=8.3.0
+opencv-python>=4.8.1.78
+opencv-contrib-python>=4.8.1.78
+torch>=2.6.0
+torchvision>=0.20.0
+numpy>=1.24.3
+pillow>=10.1.0
 
 # NLP and Translation
-transformers==4.35.2
-sentencepiece==0.1.99
-sacremoses==0.1.1
+transformers>=4.35.2
+sentencepiece>=0.2.0
+sacremoses>=0.1.1
 
 # Database
 prisma==0.11.0
@@ -47,11 +47,11 @@ python-multipart==0.0.6
 
 # Environment & Configuration
 python-dotenv==1.0.0
-pydantic==2.5.2
-pydantic-settings==2.1.0
+pydantic>=2.10.0
+pydantic-settings>=2.1.0
 
 # Data Processing
-pandas==2.1.3
+pandas>=2.2.0
 python-dateutil==2.8.2
 
 # Utilities

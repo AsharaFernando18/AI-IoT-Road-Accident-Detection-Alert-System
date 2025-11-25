@@ -58,6 +58,7 @@ logs/*.log
 uploads/
 static/uploads/
 temp/
+accidents/
 
 # Node modules (if any JS tools)
 node_modules/

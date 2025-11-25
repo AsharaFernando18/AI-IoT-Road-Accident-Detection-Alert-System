@@ -19,7 +19,7 @@ from config import Config
 from ai_model.detector import AccidentDetector
 from utils.geolocation import GeolocationService
 from utils.translation import TranslationService, SimpleTranslator
-from telegram_bot.bot import TelegramAlertService
+from utils.telegram_notifications import notify_nearest_responders
 from prisma import Prisma
 
 # Configure logging
@@ -65,10 +65,6 @@ class RoadSafeNet:
             logger.warning(f"Failed to load full translator: {e}")
             logger.info("Using simple template translator")
             self.translator = SimpleTranslator()
-        
-        # Telegram Bot
-        logger.info("Initializing Telegram bot...")
-        self.telegram = TelegramAlertService()
         
         # State tracking
         self.last_detection = {}
@@ -134,17 +130,30 @@ class RoadSafeNet:
         image_path = self._save_frame(frame, frame_number)
         
         # Prepare accident data
+        # Convert numpy types to Python types for JSON serialization
+        detections_serializable = []
+        for det in result["detections"]:
+            det_copy = {
+                "bbox": [float(x) for x in det["bbox"]],
+                "confidence": float(det["confidence"]),
+                "class_id": int(det["class_id"]),
+                "class_name": det["class_name"],
+                "center": [float(x) for x in det["center"]],
+                "area": float(det["area"])
+            }
+            detections_serializable.append(det_copy)
+        
         accident_data = {
             "timestamp": datetime.now(),
-            "location_lat": location_data.get("latitude", 0.0),
-            "location_lon": location_data.get("longitude", 0.0),
+            "location_lat": float(location_data.get("latitude", 0.0)),
+            "location_lon": float(location_data.get("longitude", 0.0)),
             "location_name": location_data.get("display_name", "Unknown"),
             "address": location_data.get("formatted_address", "Unknown"),
             "city": location_data.get("city", "Unknown"),
             "country": location_data.get("country", "Unknown"),
             "severity": severity,
-            "confidence": result["confidence"],
-            "detected_objects": json.dumps(result["detections"]),
+            "confidence": float(result["confidence"]),
+            "detected_objects": json.dumps(detections_serializable),
             "image_path": image_path,
             "video_frame": frame_number,
             "status": "pending"
@@ -202,48 +211,47 @@ class RoadSafeNet:
         filename = f"accident_{timestamp}_frame_{frame_number}.jpg"
         filepath = Config.UPLOADS_DIR / filename
         
-        # Draw annotations
-        annotated = self.detector.draw_detections(frame, {"detections": [], "is_accident": True})
+        # Draw annotations with proper result structure
+        annotated = self.detector.draw_detections(frame, {"detections": [], "is_accident": True, "confidence": 1.0})
         cv2.imwrite(str(filepath), annotated)
         
         return str(filepath)
     
     async def _send_alerts(self, accident_record):
-        """Send multilingual alerts via Telegram"""
+        """Send notifications to nearest responders via Telegram"""
         try:
-            # Prepare alert data
-            alert_data = {
-                "timestamp": accident_record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                "location_name": accident_record.location_name,
-                "address": accident_record.address,
-                "city": accident_record.city,
-                "severity": accident_record.severity,
-                "confidence": accident_record.confidence,
-                "location_lat": accident_record.location_lat,
-                "location_lon": accident_record.location_lon,
-                "detected_objects_count": len(json.loads(accident_record.detected_objects)),
-                "image_path": accident_record.image_path
+            # Prepare accident data for notification
+            accident_data = {
+                'latitude': float(accident_record.location_lat),
+                'longitude': float(accident_record.location_lon),
+                'severity': accident_record.severity,
+                'location': accident_record.location_name,
+                'city': accident_record.city,
+                'timestamp': accident_record.timestamp.isoformat(),
+                'description': f"Confidence: {accident_record.confidence:.2%}"
             }
             
-            # Send alert via Telegram
-            results = await self.telegram.send_accident_alert(alert_data)
+            # Send notifications to nearest responders
+            notification_results = notify_nearest_responders(accident_data, limit_per_type=3)
             
-            # Record alerts in database
-            for chat_id, status in results.items():
-                await self.db.alert.create(
-                    data={
-                        "accident_id": accident_record.id,
-                        "language": "en",  # Default, can be customized
-                        "message": f"Accident at {accident_record.location_name}",
-                        "status": "sent" if status else "failed",
-                        "recipient": chat_id
-                    }
-                )
+            # Count successful notifications
+            total_sent = sum(
+                sum(1 for r in results if r['notified'])
+                for results in notification_results.values()
+            )
             
-            logger.info(f"✓ Alerts sent to {len(results)} recipients")
+            logger.info(f"🚨 Notifications sent to {total_sent} responders")
+            
+            # Log each notification
+            for resp_type, results in notification_results.items():
+                for result in results:
+                    if result['notified']:
+                        logger.info(f"   ✅ {result['username']} ({resp_type}) - {result['distance_km']:.2f} km")
+                    else:
+                        logger.warning(f"   ❌ {result['username']} ({resp_type}) - {result.get('error', 'Unknown error')}")
         
         except Exception as e:
-            logger.error(f"Failed to send alerts: {e}")
+            logger.error(f"Failed to send notifications: {e}")
     
     async def process_video_stream(self, video_source: str):
         """
